@@ -48,10 +48,13 @@
       padding: 5px;
       color: inherit; /* Ensures button text inherits current text color */
     }
-    h1, h2 {
-      text-align: center;
+
+        /* Apply the no-fill outline to h1 and h2 */
+        h1, h2 {
+      color: transparent; /* Hide the fill color */
       margin: 0.5rem 0;
-      color: inherit; /* Inherit color based on the mode */
+
+      -webkit-text-stroke: 1px inherit; /* Black outline for light mode */
     }
     .content {
       flex-grow: 1;
