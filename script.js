@@ -1,7 +1,7 @@
 let recipes = [];
 
 async function fetchRecipes() {
-  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pub?output=csv';
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pubhtml';
   
   // Use a CORS proxy if needed
   const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
