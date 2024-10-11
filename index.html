@@ -17,6 +17,8 @@
       justify-content: center;
       align-items: center;
       background-color: #f4f4f4;
+      color: black; /* Default text color for light mode */
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .note-card {
       width: 60vw;
@@ -28,9 +30,9 @@
       margin: 2rem auto;
       border-radius: 15px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s ease, color 0.3s ease;
       background-color: white;
       position: relative;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .header {
       display: flex;
@@ -44,12 +46,13 @@
       border: none;
       cursor: pointer;
       padding: 5px;
+      color: inherit; /* Ensures button text inherits current text color */
     }
     h1, h2 {
       text-align: center;
       margin: 0.5rem 0;
-      color: transparent;
-      -webkit-text-stroke: 1px black;
+      color: transparent; /* Hide the fill color */
+      -webkit-text-stroke: 1px black; /* Black outline for light mode */
     }
     .content {
       flex-grow: 1;
@@ -64,6 +67,7 @@
       text-align: left;
       cursor: pointer;
       border-radius: 5px;
+      color: inherit; /* Inherit color based on the mode */
     }
     .list-item:hover {
       background-color: #f0f0f0;
@@ -95,18 +99,21 @@
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #121212;
-        color: #ffffff;
+        color: #ffffff; /* White text for dark mode */
       }
       .note-card {
         background-color: #333;
-        color: white;
-        border-color: white;
+        color: white; /* White text inside note card */
+        border-color: white; /* White border in dark mode */
       }
       h1, h2 {
-        -webkit-text-stroke: 1px white;
+        -webkit-text-stroke: 1px white; /* White outline for dark mode */
+      }
+      .list-item {
+        color: white; /* White text for list items */
       }
       .list-item:hover {
-        background-color: #444;
+        background-color: #444; /* Darker hover effect in dark mode */
       }
     }
   </style>
@@ -124,7 +131,7 @@
   <div class="toast">Link copied to clipboard!</div>
 
   <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pub?output=csv';
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pubhtml';
     const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 
     let recipeData = {};
@@ -249,27 +256,15 @@
       `;
     }
 
-    backButton.addEventListener('click', () => {
-      if (currentRecipe) {
-        showRecipes(currentSubcategory);
-        currentRecipe = null;
-        shareButton.style.display = 'none';
-      } else if (currentSubcategory) {
-        showSubcategories(currentCategory);
-        currentSubcategory = null;
-      } else {
-        showCategories();
-      }
-    });
-
+    backButton.addEventListener('click', showSubcategories.bind(null, currentCategory));
     shareButton.addEventListener('click', () => {
-      const url = `${window.location.href.split('?')[0]}?category=${encodeURIComponent(currentCategory)}&subcategory=${encodeURIComponent(currentSubcategory)}&recipe=${encodeURIComponent(currentRecipe.RecipeName)}`;
-      navigator.clipboard.writeText(url);
-      
-      toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 2000);
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          toast.style.display = 'block';
+          setTimeout(() => {
+            toast.style.display = 'none';
+          }, 2000);
+        });
     });
 
     fetchData();
