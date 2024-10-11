@@ -49,12 +49,17 @@
       color: inherit; /* Ensures button text inherits current text color */
     }
 
-        /* Apply the no-fill outline to h1 and h2 */
         h1, h2 {
-      color: transparent; /* Hide the fill color */
-      margin: 0.5rem 0;
+    text-align: center;
+    margin: 0.5rem 0;
+    color: transparent; /* Hide the fill color */
+    -webkit-text-stroke: 1px black; /* Black outline for light mode */
+    }
 
-      -webkit-text-stroke: 1px inherit; /* Black outline for light mode */
+    @media (prefers-color-scheme: dark) {
+    h1, h2 {
+        -webkit-text-stroke: 1px white; /* White outline for dark mode */
+    }
     }
     .content {
       flex-grow: 1;
