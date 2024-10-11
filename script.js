@@ -1,7 +1,8 @@
 let recipes = [];
 
 async function fetchRecipes() {
-  const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pub?output=csv');
+//   const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pub?output=csv');
+  const response = await fetch('https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pub?output=csv');
   const data = await response.text();
   const rows = data.split('\n').slice(1); // Skip header
 
