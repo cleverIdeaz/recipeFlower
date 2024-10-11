@@ -1,31 +1,16 @@
 let recipes = [];
 
 async function fetchRecipes() {
-  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pubhtml';
-  
-  // Use a CORS proxy if needed
-  const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
-  const response = await fetch(CORS_PROXY + SHEET_URL);
-  
-  // Check if the response is OK
-  if (!response.ok) {
-    console.error('Failed to fetch recipes:', response.statusText);
-    return;
-  }
-  
-  try {
-    const data = await response.text();
-    const rows = data.split('\n').slice(1); // Skip header
+  const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pub?output=csv');
+  const data = await response.text();
+  const rows = data.split('\n').slice(1); // Skip header
 
-    rows.forEach(row => {
-      const [category, subcategory, recipeName, ingredients, ingredientLinks, instructions] = row.split(',');
-      recipes.push({ category, subcategory, recipeName, ingredients, ingredientLinks, instructions });
-    });
+  rows.forEach(row => {
+    const [category, subcategory, recipeName, ingredients, ingredientLinks, instructions] = row.split(',');
+    recipes.push({ category, subcategory, recipeName, ingredients, ingredientLinks, instructions });
+  });
 
-    populateRecipeDropdown();
-  } catch (error) {
-    console.error('Error processing data:', error);
-  }
+  populateRecipeDropdown();
 }
 
 function populateRecipeDropdown() {
