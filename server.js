@@ -1,28 +1,61 @@
-// Assuming you've already set up the MongoDB connection
+// server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const Recipe = require('./models/recipe'); // Adjust the path to where your schema is defined
+const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;
-
-// Middleware to handle JSON
+app.use(cors());
 app.use(express.json());
 
-// Route to get all recipes
-app.get('/api/recipes', async (req, res) => {
+const PORT = process.env.PORT || 5000;
+
+// Connect to MongoDB
+mongoose.connect('mongodb+srv://nealandersontech:lbfVgSputI7qEgke@recipeflower.2aa68.mongodb.net/recipeDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const recipeSchema = new mongoose.Schema({
+  Category: String,
+  Subcategory: String,
+  RecipeName: String,
+  Ingredients: String,
+  IngredientLinks: String,
+  Instructions: String,
+});
+
+const Recipe = mongoose.model('Recipe', recipeSchema);
+
+// Get all categories
+app.get('/categories', async (req, res) => {
   try {
-    const recipes = await Recipe.find();
-    res.json(recipes);
-  } catch (err) {
-    res.status(500).json({ error: 'Error fetching recipes' });
+    const categories = await Recipe.distinct('Category');
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
 
-// Serve your index.html
-app.use(express.static('public'));
+// Get subcategories by category
+app.get('/subcategories/:category', async (req, res) => {
+  try {
+    const subcategories = await Recipe.distinct('Subcategory', { Category: req.params.category });
+    res.json(subcategories);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch subcategories' });
+  }
+});
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+// Get recipes by subcategory
+app.get('/recipes/:subcategory', async (req, res) => {
+  try {
+    const recipes = await Recipe.find({ Subcategory: req.params.subcategory });
+    res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch recipes' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
