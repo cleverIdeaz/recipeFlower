@@ -1,63 +1,169 @@
-<script>
-  let recipes = [];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Card</title>
+  <style>
+    /* Your existing styles */
+  </style>
+</head>
+<body>
+  <div class="note-card">
+    <div class="header">
+      <button class="back-button" style="display: none;">←</button>
+      <button class="share-button" style="display: none;">Share</button>
+    </div>
+    <h1>Loading...</h1>
+    <h2></h2>
+    <div class="content"></div>
+  </div>
+  <div class="toast">Link copied to clipboard!</div>
 
-  async function fetchRecipes() {
-    try {
-      const response = await fetch('http://localhost:3000/api/recipes');
-      const data = await response.json();
-      recipes = data;
-      populateRecipeDropdown();
-    } catch (error) {
-      console.error('Error fetching recipes:', error);
+  <script>
+    let recipeData = {};
+    let currentCategory = null;
+    let currentSubcategory = null;
+    let currentRecipe = null;
+
+    const card = document.querySelector('.note-card');
+    const title = card.querySelector('h1');
+    const subtitle = card.querySelector('h2');
+    const content = card.querySelector('.content');
+    const backButton = card.querySelector('.back-button');
+    const shareButton = card.querySelector('.share-button');
+    const toast = document.querySelector('.toast');
+
+    async function fetchCategories() {
+      try {
+        const response = await fetch('http://localhost:5000/categories');
+        const categories = await response.json();
+        recipeData = categories.reduce((acc, category) => {
+          acc[category] = {};
+          return acc;
+        }, {});
+        showCategories();
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        title.textContent = 'Error loading data';
+      }
     }
-  }
 
-  function populateRecipeDropdown() {
-    const select = document.getElementById('recipeSelect');
-    recipes.forEach((recipe, index) => {
-      const option = document.createElement('option');
-      option.value = index; // Use index as the value for easy access
-      option.innerText = recipe.RecipeName;
-      select.appendChild(option);
-    });
-  }
-
-  function updateRecipeCard() {
-    const select = document.getElementById('recipeSelect');
-    const selectedIndex = select.value;
-
-    if (selectedIndex === "") {
-      return; // Exit if no recipe is selected
+    async function fetchSubcategories(category) {
+      try {
+        const response = await fetch(`http://localhost:5000/subcategories/${category}`);
+        const subcategories = await response.json();
+        recipeData[category] = subcategories.reduce((acc, subcategory) => {
+          acc[subcategory] = [];
+          return acc;
+        }, {});
+        showSubcategories(category);
+      } catch (error) {
+        console.error('Error fetching subcategories:', error);
+      }
     }
 
-    const selectedRecipe = recipes[selectedIndex];
-    document.getElementById('recipeName').innerText = selectedRecipe.RecipeName;
-    document.getElementById('recipeCategory').innerText = `${selectedRecipe.Category} | ${selectedRecipe.Subcategory}`;
+    async function fetchRecipes(subcategory) {
+      try {
+        const response = await fetch(`http://localhost:5000/recipes/${subcategory}`);
+        const recipes = await response.json();
+        recipeData[currentCategory][subcategory] = recipes;
+        showRecipes(subcategory);
+      } catch (error) {
+        console.error('Error fetching recipes:', error);
+      }
+    }
 
-    // Populate ingredients with hyperlinks
-    const ingredientsList = document.getElementById('ingredientsList');
-    ingredientsList.innerHTML = ''; // Clear previous ingredients
-    const ingredientsArray = selectedRecipe.Ingredients.split(';');
-    const linksArray = selectedRecipe.IngredientLinks.split(';');
+    function showCategories() {
+      currentCategory = null;
+      currentSubcategory = null;
+      currentRecipe = null;
+      
+      title.textContent = 'Categories';
+      subtitle.textContent = '';
+      backButton.style.display = 'none';
+      shareButton.style.display = 'none';
+      
+      content.innerHTML = Object.keys(recipeData)
+        .map(category => `
+          <button class="list-item" onclick="fetchSubcategories('${category}')">
+            ${category}
+          </button>
+        `).join('');
+    }
 
-    ingredientsArray.forEach((ingredient, index) => {
-      const link = linksArray[index] ? `<a href="${linksArray[index]}" target="_blank">${ingredient}</a>` : ingredient;
-      const li = document.createElement('li');
-      li.innerHTML = link;
-      ingredientsList.appendChild(li);
+    function showSubcategories(category) {
+      currentCategory = category;
+      currentSubcategory = null;
+      
+      title.textContent = category;
+      subtitle.textContent = 'Subcategories';
+      backButton.style.display = 'block';
+      
+      content.innerHTML = Object.keys(recipeData[category])
+        .map(subcategory => `
+          <button class="list-item" onclick="fetchRecipes('${subcategory}')">
+            ${subcategory}
+          </button>
+        `).join('');
+    }
+
+    function showRecipes(subcategory) {
+      currentSubcategory = subcategory;
+      
+      title.textContent = subcategory;
+      subtitle.textContent = currentCategory;
+      
+      content.innerHTML = recipeData[currentCategory][subcategory]
+        .map(recipe => `
+          <button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">
+            ${recipe.RecipeName}
+          </button>
+        `).join('');
+    }
+
+    function showRecipe(recipeName) {
+      currentRecipe = recipeData[currentCategory][currentSubcategory]
+        .find(r => r.RecipeName === recipeName);
+      
+      title.textContent = currentRecipe.RecipeName;
+      subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
+      shareButton.style.display = 'block';
+      
+      content.innerHTML = `
+        <div class="recipe-content">
+          <div class="recipe-section">
+            <h3>Ingredients</h3>
+            <ul>
+              ${currentRecipe.Ingredients.split('•')
+                .map(ingredient => `<li>${ingredient.trim()}</li>`)
+                .join('')}
+            </ul>
+          </div>
+          <div class="recipe-section">
+            <h3>Instructions</h3>
+            <ol>
+              ${currentRecipe.Instructions.split('•')
+                .map(instruction => `<li>${instruction.trim()}</li>`)
+                .join('')}
+            </ol>
+          </div>
+        </div>
+      `;
+    }
+
+    backButton.addEventListener('click', showCategories);
+    shareButton.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          toast.style.display = 'block';
+          setTimeout(() => {
+            toast.style.display = 'none';
+          }, 2000);
+        });
     });
 
-    // Populate instructions
-    const instructionsList = document.getElementById('instructionsList');
-    instructionsList.innerHTML = ''; // Clear previous instructions
-    const instructionsArray = selectedRecipe.Instructions.split(';');
-    instructionsArray.forEach(instruction => {
-      const li = document.createElement('li');
-      li.innerText = instruction;
-      instructionsList.appendChild(li);
-    });
-  }
-
-  // Fetch recipes when the page loads
-  fetchRecipes();
-</script>
+    fetchCategories();
+  </script>
+</body>
+</html>
