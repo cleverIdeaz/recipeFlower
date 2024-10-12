@@ -6,10 +6,19 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5500', // Replace with your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// ... rest of your server code ...
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
+
 
 const recipeSchema = new mongoose.Schema({
   Category: String,
