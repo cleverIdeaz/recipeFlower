@@ -25,7 +25,17 @@ const Recipe = mongoose.model('Recipe', recipeSchema);
 app.get('/api/recipes', async (req, res) => {
   try {
     const recipes = await Recipe.find();
-    res.json(recipes);
+    const organizedData = recipes.reduce((acc, recipe) => {
+      if (!acc[recipe.Category]) {
+        acc[recipe.Category] = {};
+      }
+      if (!acc[recipe.Category][recipe.Subcategory]) {
+        acc[recipe.Category][recipe.Subcategory] = [];
+      }
+      acc[recipe.Category][recipe.Subcategory].push(recipe);
+      return acc;
+    }, {});
+    res.json(organizedData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
