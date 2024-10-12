@@ -14,7 +14,13 @@ const toast = document.querySelector('.toast');
 async function fetchData() {
   try {
     console.log('Fetching data...');
-    const response = await fetch('http://localhost:3000/api/recipes');
+    const response = await fetch('http://localhost:3000/api/recipes', {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     console.log('Response received:', response);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -26,8 +32,14 @@ async function fetchData() {
   } catch (error) {
     console.error('Error fetching data:', error);
     title.textContent = 'Error loading data';
+    content.innerHTML = `<p>Error details: ${error.message}</p>`;
   }
 }
+
+// ... (rest of the functions remain the same)
+
+
+
 
 function showCategories() {
   currentCategory = null;
@@ -127,9 +139,15 @@ function handleShareButton() {
   }, 2000);
 }
 
+
+
+
 // Wait for the DOM to be fully loaded before adding event listeners
 document.addEventListener('DOMContentLoaded', () => {
   backButton.addEventListener('click', handleBackButton);
   shareButton.addEventListener('click', handleShareButton);
   fetchData();
-});
+});let recipeData = {};
+
+
+
