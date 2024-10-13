@@ -1,4 +1,3 @@
-// Wrap everything in an IIFE to avoid global scope pollution
 (function() {
   let recipeData = {};
   let currentCategory = null;
@@ -16,7 +15,7 @@
   async function fetchData() {
     try {
       console.log('Fetching data...');
-      const response = await fetch('http://localhost:3000/api/recipes', {
+      const response = await fetch('http://localhost:5000/api/recipes', {
         method: 'GET',
         mode: 'cors',
         headers: {
