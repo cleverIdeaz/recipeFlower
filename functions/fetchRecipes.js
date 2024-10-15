@@ -18,7 +18,7 @@ exports.handler = async  (event, context) => {
     console.error('Error fetching recipes:', error); // Log the error for debugging
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch recipes" }),
+      body: JSON.stringify({ error: "Failed to fetch recipes." }),
     };
   } finally {
     await client.close();
