@@ -1,3 +1,4 @@
+// functions/getRecipes.js
 const { MongoClient } = require("mongodb");
 
 exports.handler = async (event, context) => {
@@ -9,17 +10,20 @@ exports.handler = async (event, context) => {
     const database = client.db("recipeflower");
     const recipes = database.collection("Recipes");
     const results = await recipes.find({}).toArray();
+    
+    console.log('Retrieved recipes:', results); // Log the retrieved recipes
 
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*', // Allow all origins (modify if necessary)
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET', // Specify allowed methods
+        'Access-Control-Allow-Methods': 'GET',
       },
       body: JSON.stringify(results),
     };
   } catch (error) {
+    console.error('Error fetching recipes:', error); // Log any errors that occur
     return {
       statusCode: 500,
       headers: {
