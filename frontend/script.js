@@ -1,37 +1,49 @@
-document.getElementById('fetch-recipes').addEventListener('click', getRecipes);
+let recipes = [];
 
-async function getRecipes() {
-    try {
-        const response = await fetch('https://recipeflower.netlify.app/.netlify/functions/getRecipes');
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-
-        const data = await response.json();
-        displayRecipes(data); // Call a function to display the recipes
-    } catch (error) {
-        console.error('There was a problem with the fetch operation:', error);
-    }
+async function fetchRecipes() {
+  try {
+    const response = await fetch('/.netlify/functions/fetchRecipes');
+    if (!response.ok) throw new Error('Failed to fetch recipes');
+    const data = await response.json();
+    recipes = data;
+    displayRecipes();
+  } catch (error) {
+    console.error(error);
+    // Handle error appropriately
+  }
 }
 
-// Function to display recipes in card format
-function displayRecipes(recipes) {
-    const recipeContainer = document.getElementById('recipe-container');
-    recipeContainer.innerHTML = ''; // Clear previous recipes
+function displayRecipes() {
+  const recipeContainer = document.getElementById('recipeContainer');
+  recipeContainer.innerHTML = '';
 
-    recipes.forEach(recipe => {
-        const recipeCard = document.createElement('div');
-        recipeCard.className = 'recipe-card';
-        recipeCard.innerHTML = `
-            <h2>${recipe.title}</h2>
-            <p>${recipe.description}</p>
-            <img src="${recipe.imageUrl}" alt="${recipe.title} image" /> <!-- Assuming your data has an image URL -->
-            <ul>
-                ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
-            </ul>
-            <p>Instructions: ${recipe.instructions}</p>
-        `;
-        recipeContainer.appendChild(recipeCard);
-    });
+  recipes.forEach(recipe => {
+    const card = document.createElement('div');
+    card.classList.add('recipe-card');
+    card.innerHTML = `
+      <h3>${recipe.name}</h3>
+      <p>${recipe.ingredients.join(', ')}</p>
+      <button onclick="viewRecipe('${recipe.id}')">View Recipe</button>
+    `;
+    recipeContainer.appendChild(card);
+  });
 }
+
+function viewRecipe(recipeId) {
+  const recipe = recipes.find(r => r.id === recipeId);
+  if (!recipe) return;
+
+  const recipeDetails = document.getElementById('recipeDetails');
+  recipeDetails.innerHTML = `
+    <h2>${recipe.name}</h2>
+    <h3>Ingredients:</h3>
+    <ul>
+      ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+    </ul>
+    <h3>Instructions:</h3>
+    <p>${recipe.instructions}</p>
+  `;
+  recipeDetails.style.display = 'block';
+}
+
+fetchRecipes();
