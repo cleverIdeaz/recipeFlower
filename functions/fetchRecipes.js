@@ -1,4 +1,3 @@
-// functions/getRecipes.js
 const { MongoClient } = require("mongodb");
 
 exports.handler = async (event, context) => {
