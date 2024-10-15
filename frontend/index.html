@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recipe Card</title>
@@ -141,32 +142,40 @@
     const toast = document.querySelector('.toast');
 
     async function fetchData() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        organizeData(data);
-        showCategories();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        title.textContent = 'Error loading data';
-      }
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+    
+    const data = await response.json();
+    console.log('Fetched data:', data); // Add this line to log the fetched data
+    
+    if (!Array.isArray(data)) {
+      throw new Error('Expected an array');
+    }
+    
+    organizeData(data);
+    showCategories();
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    title.textContent = 'Error loading data';
+  }
+}
 
-    function organizeData(rows) {
-      recipeData = rows.reduce((acc, row) => {
-        if (!acc[row.category]) {
-          acc[row.category] = {};
-        }
-        if (!acc[row.category][row.subcategory]) {
-          acc[row.category][row.subcategory] = [];
-        }
-        acc[row.category][row.subcategory].push(row);
-        return acc;
-      }, {});
+function organizeData(rows) {
+  console.log('Organizing data:', rows); // Log the rows to see their structure
+  recipeData = rows.reduce((acc, row) => {
+    if (!acc[row.category]) {
+      acc[row.category] = {};
     }
+    if (!acc[row.category][row.subcategory]) {
+      acc[row.category][row.subcategory] = [];
+    }
+    acc[row.category][row.subcategory].push(row);
+    return acc;
+  }, {});
+}
 
     function showCategories() {
       currentCategory = null;
