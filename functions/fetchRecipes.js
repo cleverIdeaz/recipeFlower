@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-exports.handler = async (event, context) => {
+exports.handler = async  (event, context) => {
   const uri = "mongodb+srv://nealandersontech:<db_password>@recipeflower.2aa68.mongodb.net/recipeflower?retryWrites=true&w=majority&appName=recipeflower"; // Update with your actual password
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -24,3 +24,13 @@ exports.handler = async (event, context) => {
     await client.close();
   }
 };
+
+
+
+// getRecipes.js
+exports.handler = async function (event, context) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Hello from the function!" }),
+    };
+  };
