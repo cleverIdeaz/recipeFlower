@@ -28,6 +28,7 @@ run().catch(console.dir);
 
 // above is example code for connecting to the database from mongodb website
 
+// below is code for the backend of the website
 
 const express = require('express');
 const mongoose = require('mongoose');
