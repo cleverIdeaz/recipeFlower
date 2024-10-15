@@ -7,8 +7,10 @@ exports.handler = async (event, context) => {
 
   try {
     await client.connect();
-    const database = client.db("recipeflower");
-    const recipes = database.collection("Recipes");
+    const database = client.db("RecipeFlower");
+    // const recipes = database.collection("Recipes");
+    const recipes = database.collection("RecipeFlower");
+
     const results = await recipes.find({}).toArray();
     
     console.log('Retrieved recipes:', results); // Log the retrieved recipes
