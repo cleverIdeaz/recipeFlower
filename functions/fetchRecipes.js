@@ -8,8 +8,8 @@ exports.handler = async (event, context) => {
   try {
     await client.connect();
     const database = client.db("RecipeFlower");
-    // const recipes = database.collection("Recipes");
-    const recipes = database.collection("RecipeFlower");
+    const recipes = database.collection("Recipes");
+    // const recipes = database.collection("RecipeFlower");
 
     const results = await recipes.find({}).toArray();
     
