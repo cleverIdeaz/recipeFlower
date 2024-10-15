@@ -1,5 +1,405 @@
-great job!  worked for the recipe view and the share links wwork!   only thing is that categories and sub categories can always just be in a single div in a scrollable list. dont need more than one box for those.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Card</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #f4f4f4;
+      padding: 1rem;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    #search-input {
+      width: 70%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #clear-search {
+      margin-left: 0.5rem;
+      padding: 0.5rem;
+      background-color: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .note-card {
+      width: 100%;
+      height: 90vh;
+      border: 1px solid black;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      background-color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .back-button, .share-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      font-size: 1rem;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      margin: 0.5rem 0;
+    }
+    h1, h2 {
+      color: transparent;
+      -webkit-text-stroke: 1px black;
+      font-size: clamp(1rem, 5vw, 2rem);
+      max-height: 20%;
+      overflow: hidden;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .box {
+      width: 100%;
+      height: 50%;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .list-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .list-item:hover {
+      background-color: #f0f0f0;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+    }
+    @media (min-width: 650px) {
+      .note-card {
+        height: 60vh;
+      }
+      .recipe-content {
+        flex-direction: row;
+      }
+      .recipe-content .box {
+        width: 50%;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #ffffff;
+      }
+      .note-card {
+        background-color: #333;
+        color: white;
+        border-color: white;
+      }
+      h1, h2 {
+        -webkit-text-stroke: 1px white;
+      }
+      .list-item, .back-button, .share-button, #search-input, #clear-search {
+        color: white;
+      }
+      .list-item:hover {
+        background-color: #444;
+      }
+      #search-input {
+        background-color: #444;
+        border-color: #666;
+      }
+      #clear-search {
+        background-color: #555;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="controls">
+      <button class="back-button" style="display: none;">←</button>
+      <button class="share-button" style="display: none;">Share</button>
+    </div>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search recipes...">
+      <button id="clear-search">Clear</button>
+    </div>
+    <div class="note-card">
+      <h1>Loading...</h1>
+      <h2></h2>
+      <div class="content"></div>
+    </div>
+  </div>
+  <div class="toast">Link copied to clipboard!</div>
 
-also for the H1 and H2 or category and subcategory. when the screen resizes really small the text stays really big and i think it should scale down with the size of the box. We dont ever want the H1 and H2 to take up more than maybe 1/5th of the top portion of the card.  in this same veign lets move the back arrow and share button outside of the index card rounded corner box and place them above the box. in the top center lets also put a search bar that will allow you to search for recipes w/ a clear button to clear your search. when you search it will take you to a special view with all recipe names returned in a single list with the category and subcategory annotated in parentheses ( cat |subcat)
+  <script>
+    const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
 
-also we still have some text that needs to change to white when in dark mode ( share button, back arrow, and category selection / sub category selection lists)
+    let recipeData = {};
+    let currentCategory = null;
+    let currentSubcategory = null;
+    let currentRecipe = null;
+
+    const card = document.querySelector('.note-card');
+    const title = card.querySelector('h1');
+    const subtitle = card.querySelector('h2');
+    const content = card.querySelector('.content');
+    const backButton = document.querySelector('.back-button');
+    const shareButton = document.querySelector('.share-button');
+    const toast = document.querySelector('.toast');
+    const searchInput = document.getElementById('search-input');
+    const clearSearch = document.getElementById('clear-search');
+
+    async function fetchData() {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        console.log('Fetched data:', data);
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Expected an array');
+        }
+        
+        organizeData(data);
+        showCategories();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        title.textContent = 'Error loading data';
+      }
+    }
+
+    function organizeData(rows) {
+      console.log('Organizing data:', rows);
+      recipeData = rows.reduce((acc, row) => {
+        if (!acc[row.Category]) {
+          acc[row.Category] = {};
+        }
+        if (!acc[row.Category][row.Subcategory]) {
+          acc[row.Category][row.Subcategory] = [];
+        }
+        acc[row.Category][row.Subcategory].push(row);
+        return acc;
+      }, {});
+    }
+
+    function showCategories() {
+      currentCategory = null;
+      currentSubcategory = null;
+      currentRecipe = null;
+      
+      title.textContent = 'Categories';
+      subtitle.textContent = '';
+      backButton.style.display = 'none';
+      shareButton.style.display = 'none';
+      
+      content.innerHTML = `<div class="box">${Object.keys(recipeData)
+        .map(category => `
+          <button class="list-item" onclick="showSubcategories('${category}')">
+            ${category}
+          </button>
+        `).join('')}</div>`;
+    }
+
+    function showSubcategories(category) {
+      currentCategory = category;
+      currentSubcategory = null;
+      
+      title.textContent = category;
+      subtitle.textContent = 'Subcategories';
+      backButton.style.display = 'block';
+      
+      content.innerHTML = `<div class="box">${Object.keys(recipeData[category])
+        .map(subcategory => `
+          <button class="list-item" onclick="showRecipes('${subcategory}')">
+            ${subcategory}
+          </button>
+        `).join('')}</div>`;
+    }
+
+    function showRecipes(subcategory) {
+      currentSubcategory = subcategory;
+      
+      title.textContent = subcategory;
+      subtitle.textContent = currentCategory;
+      
+      content.innerHTML = `<div class="box">${recipeData[currentCategory][subcategory]
+        .map(recipe => `
+          <button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">
+            ${recipe.RecipeName}
+          </button>
+        `).join('')}</div>`;
+    }
+
+    function showRecipe(recipeName) {
+      currentRecipe = recipeData[currentCategory][currentSubcategory]
+        .find(r => r.RecipeName === recipeName);
+      
+      title.textContent = currentRecipe.RecipeName;
+      subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
+      shareButton.style.display = 'block';
+      
+      content.innerHTML = `
+        <div class="recipe-content">
+          <div class="box">
+            <h3>Ingredients</h3>
+            <ul>
+              ${currentRecipe.Ingredients.split('•')
+                .filter(ingredient => ingredient.trim() !== '')
+                .map(ingredient => `<li>${ingredient.trim()}</li>`)
+                .join('')}
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Instructions</h3>
+            <ol>
+              ${currentRecipe.Instructions.split('•')
+                .filter(instruction => instruction.trim() !== '')
+                .map(instruction => `<li>${instruction.trim()}</li>`)
+                .join('')}
+            </ol>
+          </div>
+        </div>
+      `;
+
+      // Update URL with recipe information
+      const url = new URL(window.location);
+      url.searchParams.set('category', currentCategory);
+      url.searchParams.set('subcategory', currentSubcategory);
+      url.searchParams.set('recipe', currentRecipe.RecipeName);
+      window.history.pushState({}, '', url);
+    }
+
+    function searchRecipes(query) {
+      const results = [];
+      Object.entries(recipeData).forEach(([category, subcategories]) => {
+        Object.entries(subcategories).forEach(([subcategory, recipes]) => {
+          recipes.forEach(recipe => {
+            if (recipe.RecipeName.toLowerCase().includes(query.toLowerCase())) {
+              results.push({ ...recipe, category, subcategory });
+            }
+          });
+        });
+      });
+
+      title.textContent = 'Search Results';
+      subtitle.textContent = '';
+      backButton.style.display = 'block';
+      shareButton.style.display = 'none';
+
+      content.innerHTML = `<div class="box">${results
+        .map(recipe => `
+          <button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">
+            ${recipe.RecipeName} (${recipe.category} | ${recipe.subcategory})
+          </button>
+        `).join('')}</div>`;
+    }
+
+    backButton.addEventListener('click', () => {
+      if (currentRecipe) {
+        showRecipes(currentSubcategory);
+        currentRecipe = null;
+        shareButton.style.display = 'none';
+      } else if (currentSubcategory) {
+        showSubcategories(currentCategory);
+        currentSubcategory = null;
+      } else {
+        showCategories();
+      }
+      // Clear URL parameters when going back
+      window.history.pushState({}, '', window.location.pathname);
+    });
+
+    shareButton.addEventListener('click', () => {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url);
+      
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2000);
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      if (e.target.value) {
+        searchRecipes(e.target.value);
+      } else {
+        showCategories();
+      }
+    });
+
+    clearSearch.addEventListener('click', () => {
+      searchInput.value = '';
+      showCategories();
+    });
+
+    // Check for URL parameters on page load
+    window.addEventListener('load', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category');
+      const subcategory = urlParams.get('subcategory');
+      const recipe = urlParams.get('recipe');
+
+      if (category && subcategory && recipe) {
+        fetchData().then(() => {
+          showSubcategories(category);
+          showRecipes(subcategory);
+          showRecipe(recipe);
+        });
+      } else {
+        fetchData();
+      }
+    });
+  </script>
+</body>
+</html>
