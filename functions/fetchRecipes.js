@@ -6,8 +6,8 @@ exports.handler = async  (event, context) => {
 
   try {
     await client.connect();
-    const database = client.db("recipeflower"); // Use your database name here
-    const recipes = database.collection("recipes");
+    const database = client.db("RecipeFlower"); // Use your database name here
+    const recipes = database.collection("Recipes");
     const results = await recipes.find({}).toArray();
 
     return {
