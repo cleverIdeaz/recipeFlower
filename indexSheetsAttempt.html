@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Card</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f4f4f4;
+      color: black; /* Default text color for light mode */
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .note-card {
+      width: 60vw;
+      height: 90vw;
+      border: 1px solid black;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      margin: 2rem auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      position: relative;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    .back-button, .share-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      color: inherit; /* Ensures button text inherits current text color */
+    }
+    h1, h2 {
+      text-align: center;
+      margin: 0.5rem 0;
+      color: transparent; /* Hide the fill color */
+      -webkit-text-stroke: 1px black; /* Black outline for light mode */
+    }
+    .content {
+      flex-grow: 1;
+      overflow: auto;
+    }
+    .list-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 5px;
+      color: inherit; /* Inherit color based on the mode */
+    }
+    .list-item:hover {
+      background-color: #f0f0f0;
+    }
+    .recipe-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .recipe-section {
+      overflow-y: auto;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+    }
+    @media (min-width: 650px) {
+      .note-card {
+        width: 60vw;
+        height: 40vw;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #ffffff; /* White text for dark mode */
+      }
+      .note-card {
+        background-color: #333;
+        color: white; /* White text inside note card */
+        border-color: white; /* White border in dark mode */
+      }
+      h1, h2 {
+        -webkit-text-stroke: 1px white; /* White outline for dark mode */
+      }
+      .list-item {
+        color: white; /* White text for list items */
+      }
+      .list-item:hover {
+        background-color: #444; /* Darker hover effect in dark mode */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="note-card">
+    <div class="header">
+      <button class="back-button" style="display: none;">←</button>
+      <button class="share-button" style="display: none;">Share</button>
+    </div>
+    <h1>Loading...</h1>
+    <h2></h2>
+    <div class="content"></div>
+  </div>
+  <div class="toast">Link copied to clipboard!</div>
+
+  <script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIykR7KdX6P2reQQubZVkCoKyvfa3XsHpNuWPKFB12hmJg1fQFtnFRO8rwz8alayn38HiyJTUlenxP/pubhtml';
+    const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+
+    let recipeData = {};
+    let currentCategory = null;
+    let currentSubcategory = null;
+    let currentRecipe = null;
+
+    const card = document.querySelector('.note-card');
+    const title = card.querySelector('h1');
+    const subtitle = card.querySelector('h2');
+    const content = card.querySelector('.content');
+    const backButton = card.querySelector('.back-button');
+    const shareButton = card.querySelector('.share-button');
+    const toast = document.querySelector('.toast');
+
+    async function fetchData() {
+      try {
+        const response = await fetch(CORS_PROXY + SHEET_URL);
+        const csvText = await response.text();
+        
+        Papa.parse(csvText, {
+          header: true,
+          complete: function(results) {
+            organizeData(results.data);
+            showCategories();
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        title.textContent = 'Error loading data';
+      }
+    }
+
+    function organizeData(rows) {
+      recipeData = rows.reduce((acc, row) => {
+        if (!acc[row.Category]) {
+          acc[row.Category] = {};
+        }
+        if (!acc[row.Category][row.Subcategory]) {
+          acc[row.Category][row.Subcategory] = [];
+        }
+        acc[row.Category][row.Subcategory].push(row);
+        return acc;
+      }, {});
+    }
+
+    function showCategories() {
+      currentCategory = null;
+      currentSubcategory = null;
+      currentRecipe = null;
+      
+      title.textContent = 'Categories';
+      subtitle.textContent = '';
+      backButton.style.display = 'none';
+      shareButton.style.display = 'none';
+      
+      content.innerHTML = Object.keys(recipeData)
+        .map(category => `
+          <button class="list-item" onclick="showSubcategories('${category}')">
+            ${category}
+          </button>
+        `).join('');
+    }
+
+    function showSubcategories(category) {
+      currentCategory = category;
+      currentSubcategory = null;
+      
+      title.textContent = category;
+      subtitle.textContent = 'Subcategories';
+      backButton.style.display = 'block';
+      
+      content.innerHTML = Object.keys(recipeData[category])
+        .map(subcategory => `
+          <button class="list-item" onclick="showRecipes('${subcategory}')">
+            ${subcategory}
+          </button>
+        `).join('');
+    }
+
+    function showRecipes(subcategory) {
+      currentSubcategory = subcategory;
+      
+      title.textContent = subcategory;
+      subtitle.textContent = currentCategory;
+      
+      content.innerHTML = recipeData[currentCategory][subcategory]
+        .map(recipe => `
+          <button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">
+            ${recipe.RecipeName}
+          </button>
+        `).join('');
+    }
+
+    function showRecipe(recipeName) {
+      currentRecipe = recipeData[currentCategory][currentSubcategory]
+        .find(r => r.RecipeName === recipeName);
+      
+      title.textContent = currentRecipe.RecipeName;
+      subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
+      shareButton.style.display = 'block';
+      
+      content.innerHTML = `
+        <div class="recipe-content">
+          <div class="recipe-section">
+            <h3>Ingredients</h3>
+            <ul>
+              ${currentRecipe.Ingredients.split(';')
+                .map(ingredient => `<li>${ingredient.trim()}</li>`)
+                .join('')}
+            </ul>
+          </div>
+          <div class="recipe-section">
+            <h3>Instructions</h3>
+            <ol>
+              ${currentRecipe.Instructions.split(';')
+                .map(instruction => `<li>${instruction.trim()}</li>`)
+                .join('')}
+            </ol>
+          </div>
+        </div>
+      `;
+    }
+
+    backButton.addEventListener('click', showSubcategories.bind(null, currentCategory));
+    shareButton.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          toast.style.display = 'block';
+          setTimeout(() => {
+            toast.style.display = 'none';
+          }, 2000);
+        });
+    });
+
+    fetchData();
+  </script>
+</body>
+</html>
