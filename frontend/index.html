@@ -280,12 +280,18 @@ const title = recipeCard.querySelector('h1');
 const subtitle = recipeCard.querySelector('h2');
 const content = recipeCard.querySelector('.recipe-content');
 const searchInput = document.getElementById('search-input');
+const searchContainer = document.querySelector('.search-container');
+const backButton = document.querySelector('.back-button');
+const shareButton = document.querySelector('.share-button');
 const toast = document.querySelector('.toast');
 
+// Menu toggle functionality
 menuToggle.addEventListener('click', () => {
+  menu.classList.toggle('collapsed');
   menu.classList.toggle('expanded');
 });
 
+// Data fetching and organization
 async function fetchData() {
   try {
     const response = await fetch(API_URL);
@@ -309,7 +315,6 @@ async function fetchData() {
 }
 
 function organizeData(rows) {
-  console.log('Organizing data:', rows);
   recipeData = rows.reduce((acc, row) => {
     if (!acc[row.Category]) {
       acc[row.Category] = {};
@@ -322,6 +327,7 @@ function organizeData(rows) {
   }, {});
 }
 
+// Navigation functions
 function showCategories() {
   currentCategory = null;
   currentSubcategory = null;
@@ -329,6 +335,9 @@ function showCategories() {
   
   title.textContent = 'Categories';
   subtitle.textContent = '';
+  backButton.style.display = 'none';
+  shareButton.style.display = 'none';
+  searchContainer.style.display = 'block';
   
   content.innerHTML = `<div class="recipe-box">${Object.keys(recipeData)
     .map(category => `
@@ -346,6 +355,9 @@ function showSubcategories(category) {
   
   title.textContent = category;
   subtitle.textContent = 'Subcategories';
+  backButton.style.display = 'block';
+  shareButton.style.display = 'none';
+  searchContainer.style.display = 'block';
   
   content.innerHTML = `<div class="recipe-box">${Object.keys(recipeData[category])
     .map(subcategory => `
@@ -362,6 +374,9 @@ function showRecipes(subcategory) {
   
   title.textContent = subcategory;
   subtitle.textContent = currentCategory;
+  backButton.style.display = 'block';
+  shareButton.style.display = 'none';
+  searchContainer.style.display = 'block';
   
   content.innerHTML = `<div class="recipe-box">${recipeData[currentCategory][subcategory]
     .map(recipe => `
@@ -379,6 +394,9 @@ function showRecipe(recipeName) {
   
   title.textContent = currentRecipe.RecipeName;
   subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
+  backButton.style.display = 'block';
+  shareButton.style.display = 'block';
+  searchContainer.style.display = 'none';
   
   content.innerHTML = `
     <div class="recipe-box">
@@ -404,6 +422,7 @@ function showRecipe(recipeName) {
   updateURL();
 }
 
+// URL and navigation management
 function updateURL() {
   const url = new URL(window.location);
   url.searchParams.delete('category');
@@ -417,6 +436,7 @@ function updateURL() {
   window.history.pushState({}, '', url);
 }
 
+// Search functionality
 function searchRecipes(query) {
   const results = [];
   Object.entries(recipeData).forEach(([category, subcategories]) => {
@@ -431,6 +451,9 @@ function searchRecipes(query) {
 
   title.textContent = 'Search Results';
   subtitle.textContent = '';
+  backButton.style.display = 'block';
+  shareButton.style.display = 'none';
+  searchContainer.style.display = 'block';
 
   content.innerHTML = `<div class="recipe-box">${results
     .map(recipe => `
@@ -440,6 +463,7 @@ function searchRecipes(query) {
     `).join('')}</div>`;
 }
 
+// Event listeners
 searchInput.addEventListener('input', (e) => {
   if (e.target.value) {
     searchRecipes(e.target.value);
@@ -448,8 +472,37 @@ searchInput.addEventListener('input', (e) => {
   }
 });
 
-// Placeholder functions for new features
+backButton.addEventListener('click', () => {
+  if (currentRecipe) {
+    showRecipes(currentSubcategory);
+  } else if (currentSubcategory) {
+    showSubcategories(currentCategory);
+  } else if (currentCategory) {
+    showCategories();
+  }
+});
+
+shareButton.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.textContent = 'Link copied to clipboard!';
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy link:', err);
+    toast.textContent = 'Failed to copy link';
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2000);
+  }
+});
+
+// Menu item functionality
 function addNewRecipe() {
+  // Placeholder for now
   alert('Add New Recipe functionality coming soon!');
 }
 
@@ -465,27 +518,34 @@ function flagRecipe() {
   }
 }
 
-// Event listeners for menu items
-document.querySelector('.menu-item:nth-child(2)').addEventListener('click', addNewRecipe);
-document.querySelector('.menu-item:nth-child(3)').addEventListener('click', printRecipe);
-document.querySelector('.menu-item:nth-child(4)').addEventListener('click', flagRecipe);
+// Initialize menu item event listeners
+document.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    const text = e.target.textContent.trim();
+    if (text.includes('Add Recipe')) {
+      addNewRecipe();
+    } else if (text.includes('Print')) {
+      printRecipe();
+    } else if (text.includes('Flag')) {
+      flagRecipe();
+    }
+  });
+});
 
-// Check for URL parameters on page load
+// Initialize the application
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const category = urlParams.get('category');
   const subcategory = urlParams.get('subcategory');
   const recipe = urlParams.get('recipe');
 
-  if (category && subcategory && recipe) {
-    fetchData().then(() => {
-      showSubcategories(category);
-      showRecipes(subcategory);
+  fetchData().then(() => {
+    if (category && subcategory && recipe) {
+      currentCategory = category;
+      currentSubcategory = subcategory;
       showRecipe(recipe);
-    });
-  } else {
-    fetchData();
-  }
+    }
+  });
 });
   </script>
 </body>
