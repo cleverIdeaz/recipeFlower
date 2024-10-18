@@ -266,7 +266,6 @@
   <div class="toast">Link copied to clipboard!</div>
 
   <script>
-
 const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
 
 let recipeData = {};
@@ -281,13 +280,9 @@ const title = recipeCard.querySelector('h1');
 const subtitle = recipeCard.querySelector('h2');
 const content = recipeCard.querySelector('.recipe-content');
 const searchInput = document.getElementById('search-input');
-const searchContainer = document.querySelector('.search-container');
-const backButton = document.querySelector('.back-button');
-const shareButton = document.querySelector('.share-button');
 const toast = document.querySelector('.toast');
 
 menuToggle.addEventListener('click', () => {
-  menu.classList.toggle('collapsed');
   menu.classList.toggle('expanded');
 });
 
@@ -334,9 +329,6 @@ function showCategories() {
   
   title.textContent = 'Categories';
   subtitle.textContent = '';
-  backButton.style.display = 'none';
-  shareButton.style.display = 'none';
-  searchContainer.style.display = 'block';
   
   content.innerHTML = `<div class="recipe-box">${Object.keys(recipeData)
     .map(category => `
@@ -354,9 +346,6 @@ function showSubcategories(category) {
   
   title.textContent = category;
   subtitle.textContent = 'Subcategories';
-  backButton.style.display = 'block';
-  shareButton.style.display = 'none';
-  searchContainer.style.display = 'block';
   
   content.innerHTML = `<div class="recipe-box">${Object.keys(recipeData[category])
     .map(subcategory => `
@@ -373,9 +362,6 @@ function showRecipes(subcategory) {
   
   title.textContent = subcategory;
   subtitle.textContent = currentCategory;
-  backButton.style.display = 'block';
-  shareButton.style.display = 'none';
-  searchContainer.style.display = 'block';
   
   content.innerHTML = `<div class="recipe-box">${recipeData[currentCategory][subcategory]
     .map(recipe => `
@@ -393,9 +379,6 @@ function showRecipe(recipeName) {
   
   title.textContent = currentRecipe.RecipeName;
   subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
-  backButton.style.display = 'block';
-  shareButton.style.display = 'block';
-  searchContainer.style.display = 'none';
   
   content.innerHTML = `
     <div class="recipe-box">
@@ -448,15 +431,62 @@ function searchRecipes(query) {
 
   title.textContent = 'Search Results';
   subtitle.textContent = '';
-  backButton.style.display = 'block';
-  shareButton.style.display = 'none';
-  searchContainer.style.display = 'block';
 
   content.innerHTML = `<div class="recipe-box">${results
     .map(recipe => `
       <button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">
-        ${recipe.RecipeName} (${recipe.category} | ${recipe.
+        ${recipe.RecipeName} (${recipe.category} | ${recipe.subcategory})
+      </button>
+    `).join('')}</div>`;
+}
 
+searchInput.addEventListener('input', (e) => {
+  if (e.target.value) {
+    searchRecipes(e.target.value);
+  } else {
+    showCategories();
+  }
+});
+
+// Placeholder functions for new features
+function addNewRecipe() {
+  alert('Add New Recipe functionality coming soon!');
+}
+
+function printRecipe() {
+  window.print();
+}
+
+function flagRecipe() {
+  const reason = prompt('Please enter the reason for flagging this recipe:');
+  if (reason) {
+    alert(`Recipe flagged. Reason: ${reason}`);
+    // Here you would typically send this information to your backend
+  }
+}
+
+// Event listeners for menu items
+document.querySelector('.menu-item:nth-child(2)').addEventListener('click', addNewRecipe);
+document.querySelector('.menu-item:nth-child(3)').addEventListener('click', printRecipe);
+document.querySelector('.menu-item:nth-child(4)').addEventListener('click', flagRecipe);
+
+// Check for URL parameters on page load
+window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const category = urlParams.get('category');
+  const subcategory = urlParams.get('subcategory');
+  const recipe = urlParams.get('recipe');
+
+  if (category && subcategory && recipe) {
+    fetchData().then(() => {
+      showSubcategories(category);
+      showRecipes(subcategory);
+      showRecipe(recipe);
+    });
+  } else {
+    fetchData();
+  }
+});
   </script>
 </body>
 </html>
