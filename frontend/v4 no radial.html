@@ -68,27 +68,22 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
     }
 
     .ingredients, .instructions {
       flex: 1;
       padding: 10px;
+      overflow-y: auto;
     }
 
     .flower-menu {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
     }
 
     .menu-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       width: 50px;
       height: 50px;
       background-color: var(--secondary-color);
@@ -101,8 +96,6 @@
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s ease;
-      z-index: 20;
-      pointer-events: auto;
     }
 
     .menu-toggle.active {
@@ -118,6 +111,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      pointer-events: none;
     }
 
     .menu-item {
@@ -152,12 +146,10 @@
       display: flex;
       opacity: 0;
       transition: opacity 0.3s ease;
-      pointer-events: none;
     }
 
     .search-container.active {
       opacity: 1;
-      pointer-events: auto;
     }
 
     #search-input {
@@ -174,21 +166,6 @@
       border: none;
       border-radius: var(--border-radius);
       cursor: pointer;
-    }
-
-    .list-item {
-      background: none;
-      border: none;
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .list-item:hover {
-      background-color: rgba(0, 0, 0, 0.1);
     }
 
     @media (orientation: landscape) {
@@ -216,18 +193,28 @@
 <body>
   <div class="container">
     <div class="recipe-card">
-      <h1>Recipe Flower</h1>
-      <h2 id="subtitle"></h2>
-      <div class="recipe-content" id="recipe-content"></div>
+      <h1>Recipe Title</h1>
+      <h2>Subtitle</h2>
+      <div class="recipe-content">
+        <div class="ingredients">
+          <h3>Ingredients</h3>
+          <ul id="ingredients-list"></ul>
+        </div>
+        <div class="instructions">
+          <h3>Instructions</h3>
+          <ol id="instructions-list"></ol>
+        </div>
+      </div>
     </div>
     <div class="flower-menu">
       <div class="menu-toggle">☰</div>
       <div class="menu-items">
-        <div class="menu-item" style="top: 10px; left: 50%; transform: translateX(-50%);" onclick="toggleSearch()">🔍</div>
-        <div class="menu-item" style="top: 10px; right: 10px;" onclick="showCategories()">🏠</div>
-        <div class="menu-item" style="bottom: 10px; right: 10px;" onclick="shareRecipe()">📤</div>
-        <div class="menu-item" style="bottom: 10px; left: 10px;">📝</div>
-        <div class="menu-item" style="top: 10px; left: 10px;">🚩</div>
+        <div class="menu-item" style="transform: translate(0, -150%);">🔍</div>
+        <div class="menu-item" style="transform: translate(106%, -106%);">📖</div>
+        <div class="menu-item" style="transform: translate(150%, 0);">📤</div>
+        <div class="menu-item" style="transform: translate(106%, 106%);">📝</div>
+        <div class="menu-item" style="transform: translate(0, 150%);">🚩</div>
+        <div class="menu-item" style="transform: translate(-106%, 106%);">🖨️</div>
       </div>
     </div>
     <div class="search-container">
@@ -246,8 +233,9 @@
 
     const card = document.querySelector('.recipe-card');
     const title = card.querySelector('h1');
-    const subtitle = document.getElementById('subtitle');
-    const content = document.getElementById('recipe-content');
+    const subtitle = card.querySelector('h2');
+    const ingredientsList = document.getElementById('ingredients-list');
+    const instructionsList = document.getElementById('instructions-list');
     const menuToggle = document.querySelector('.menu-toggle');
     const menuItems = document.querySelector('.menu-items');
     const searchContainer = document.querySelector('.search-container');
@@ -296,11 +284,10 @@
       title.textContent = 'Categories';
       subtitle.textContent = '';
       
-      content.innerHTML = Object.keys(recipeData)
-        .map(category => `<button class="list-item" onclick="showSubcategories('${category}')">${category}</button>`)
+      ingredientsList.innerHTML = Object.keys(recipeData)
+        .map(category => `<li><button onclick="showSubcategories('${category}')">${category}</button></li>`)
         .join('');
-
-      updateURL();
+      instructionsList.innerHTML = '';
     }
 
     function showSubcategories(category) {
@@ -310,11 +297,10 @@
       title.textContent = category;
       subtitle.textContent = 'Subcategories';
       
-      content.innerHTML = Object.keys(recipeData[category])
-        .map(subcategory => `<button class="list-item" onclick="showRecipes('${subcategory}')">${subcategory}</button>`)
+      ingredientsList.innerHTML = Object.keys(recipeData[category])
+        .map(subcategory => `<li><button onclick="showRecipes('${subcategory}')">${subcategory}</button></li>`)
         .join('');
-
-      updateURL();
+      instructionsList.innerHTML = '';
     }
 
     function showRecipes(subcategory) {
@@ -323,11 +309,10 @@
       title.textContent = subcategory;
       subtitle.textContent = currentCategory;
       
-      content.innerHTML = recipeData[currentCategory][subcategory]
-        .map(recipe => `<button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">${recipe.RecipeName}</button>`)
+      ingredientsList.innerHTML = recipeData[currentCategory][subcategory]
+        .map(recipe => `<li><button onclick="showRecipe('${recipe.RecipeName}')">${recipe.RecipeName}</button></li>`)
         .join('');
-
-      updateURL();
+      instructionsList.innerHTML = '';
     }
 
     function showRecipe(recipeName) {
@@ -337,28 +322,22 @@
       title.textContent = currentRecipe.RecipeName;
       subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
       
-      content.innerHTML = `
-        <div class="ingredients">
-          <h3>Ingredients</h3>
-          <ul>
-            ${currentRecipe.Ingredients.split('•')
-              .filter(ingredient => ingredient.trim() !== '')
-              .map(ingredient => `<li>${ingredient.trim()}</li>`)
-              .join('')}
-          </ul>
-        </div>
-        <div class="instructions">
-          <h3>Instructions</h3>
-          <ol>
-            ${currentRecipe.Instructions.split('•')
-              .filter(instruction => instruction.trim() !== '')
-              .map(instruction => `<li>${instruction.trim()}</li>`)
-              .join('')}
-          </ol>
-        </div>
-      `;
+      ingredientsList.innerHTML = currentRecipe.Ingredients.split('•')
+        .filter(ingredient => ingredient.trim() !== '')
+        .map(ingredient => `<li>${ingredient.trim()}</li>`)
+        .join('');
 
-      updateURL();
+      instructionsList.innerHTML = currentRecipe.Instructions.split('•')
+        .filter(instruction => instruction.trim() !== '')
+        .map(instruction => `<li>${instruction.trim()}</li>`)
+        .join('');
+
+      // Update URL with recipe information
+      const url = new URL(window.location);
+      url.searchParams.set('category', currentCategory);
+      url.searchParams.set('subcategory', currentSubcategory);
+      url.searchParams.set('recipe', currentRecipe.RecipeName);
+      window.history.pushState({}, '', url);
     }
 
     function searchRecipes(query) {
@@ -376,41 +355,17 @@
       title.textContent = 'Search Results';
       subtitle.textContent = '';
 
-      content.innerHTML = results
-        .map(recipe => `<button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">${recipe.RecipeName} (${recipe.category} | ${recipe.subcategory})</button>`)
+      ingredientsList.innerHTML = results
+        .map(recipe => `<li><button onclick="showRecipe('${recipe.RecipeName}')">${recipe.RecipeName} (${recipe.category} | ${recipe.subcategory})</button></li>`)
         .join('');
+      instructionsList.innerHTML = '';
     }
 
-    function toggleMenu() {
+    menuToggle.addEventListener('click', () => {
       menuToggle.classList.toggle('active');
       menuItems.classList.toggle('active');
-    }
-
-    function toggleSearch() {
       searchContainer.classList.toggle('active');
-      if (searchContainer.classList.contains('active')) {
-        searchInput.focus();
-      }
-    }
-
-    function shareRecipe() {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        alert('Link copied to clipboard!');
-      }).catch(err => {
-        console.error('Failed to copy: ', err);
-      });
-    }
-
-    function updateURL() {
-      const url = new URL(window.location);
-      url.searchParams.set('category', currentCategory || '');
-      url.searchParams.set('subcategory', currentSubcategory || '');
-      url.searchParams.set('recipe', currentRecipe ? currentRecipe.RecipeName : '');
-      window.history.pushState({}, '', url);
-    }
-
-    menuToggle.addEventListener('click', toggleMenu);
+    });
 
     searchInput.addEventListener('input', (e) => {
       if (e.target.value) {
@@ -423,7 +378,6 @@
     clearSearch.addEventListener('click', () => {
       searchInput.value = '';
       showCategories();
-      toggleSearch();
     });
 
     // Check for URL parameters on page load
@@ -433,20 +387,15 @@
       const subcategory = urlParams.get('subcategory');
       const recipe = urlParams.get('recipe');
 
-      fetchData().then(() => {
-        if (category && subcategory && recipe) {
+      if (category && subcategory && recipe) {
+        fetchData().then(() => {
           showSubcategories(category);
           showRecipes(subcategory);
           showRecipe(recipe);
-        } else if (category && subcategory) {
-          showSubcategories(category);
-          showRecipes(subcategory);
-        } else if (category) {
-          showSubcategories(category);
-        } else {
-          showCategories();
-        }
-      });
+        });
+      } else {
+        fetchData();
+      }
     });
   </script>
 </body>
