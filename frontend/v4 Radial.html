@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recipe Explorer</title>
+  <title>Recipe Flower</title>
   <style>
     :root {
       --primary-color: #4a90e2;
@@ -34,10 +34,8 @@
 
     .container {
       position: relative;
-      width: 90vw;
-      height: 90vh;
-      max-width: 800px;
-      max-height: 600px;
+      width: 95vw;
+      height: 95vh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -45,8 +43,10 @@
 
     .recipe-card {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: 80vw;
+      height: 80vh;
+      max-width: 400px;
+      max-height: 600px;
       background-color: var(--card-background);
       border-radius: var(--border-radius);
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -58,87 +58,122 @@
     }
 
     .recipe-card h1, .recipe-card h2 {
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text-color);
       text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .recipe-card h1 {
-      font-size: 4vmin;
-      margin-bottom: 0.5vmin;
-    }
-
-    .recipe-card h2 {
-      font-size: 3vmin;
-      margin-bottom: 2vmin;
+      margin: 10px 0;
     }
 
     .recipe-content {
       flex-grow: 1;
       display: flex;
-      overflow: hidden;
+      flex-direction: column;
+      overflow-y: auto;
     }
 
     .ingredients, .instructions {
       flex: 1;
       padding: 10px;
-      overflow-y: auto;
     }
 
-    .ingredients {
-      border-right: 1px solid #eee;
-    }
-
-    .flower {
+    .flower-menu {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 5;
     }
 
-    .flower path {
-      fill: none;
-      stroke: var(--primary-color);
-      stroke-width: 2;
-      opacity: 0.3;
-    }
-
-    .controls {
+    .menu-toggle {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background-color: var(--secondary-color);
+      border-radius: 50%;
       display: flex;
-      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+      z-index: 20;
+      pointer-events: auto;
     }
 
-    .back-button, .share-button, .search-button {
+    .menu-toggle.active {
+      transform: rotate(45deg);
+    }
+
+    .menu-items {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .menu-item {
+      position: absolute;
+      width: 60px;
+      height: 60px;
       background-color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: var(--border-radius);
+      font-size: 24px;
       cursor: pointer;
-      font-size: 14px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      transform: scale(0);
+      pointer-events: auto;
+    }
+
+    .menu-items.active .menu-item {
+      opacity: 1;
+      transform: scale(1);
     }
 
     .search-container {
       position: absolute;
-      top: 50px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 20;
-      display: none;
+      z-index: 30;
+      display: flex;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .search-container.active {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     #search-input {
-      padding: 5px;
+      padding: 10px;
       border: none;
       border-radius: var(--border-radius);
-      width: 200px;
+      margin-right: 5px;
+    }
+
+    #clear-search {
+      padding: 10px;
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
     }
 
     .list-item {
@@ -156,6 +191,19 @@
       background-color: rgba(0, 0, 0, 0.1);
     }
 
+    @media (orientation: landscape) {
+      .recipe-card {
+        width: 80vw;
+        height: 80vh;
+        max-width: 800px;
+        max-height: 400px;
+      }
+
+      .recipe-content {
+        flex-direction: row;
+      }
+    }
+
     @media (prefers-color-scheme: dark) {
       :root {
         --background-color: #121212;
@@ -168,41 +216,24 @@
 <body>
   <div class="container">
     <div class="recipe-card">
-      <h1>Recipe Explorer</h1>
-      <h2></h2>
-      <div class="recipe-content"></div>
-      <div class="controls">
-        <button class="back-button" style="display: none;">Back</button>
-        <button class="share-button" style="display: none;">Share</button>
-        <button class="search-button">Search</button>
-      </div>
-      <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search recipes...">
+      <h1>Recipe Flower</h1>
+      <h2 id="subtitle"></h2>
+      <div class="recipe-content" id="recipe-content"></div>
+    </div>
+    <div class="flower-menu">
+      <div class="menu-toggle">☰</div>
+      <div class="menu-items">
+        <div class="menu-item" style="top: 10px; left: 50%; transform: translateX(-50%);" onclick="toggleSearch()">🔍</div>
+        <div class="menu-item" style="top: 10px; right: 10px;" onclick="showCategories()">🏠</div>
+        <div class="menu-item" style="bottom: 10px; right: 10px;" onclick="shareRecipe()">📤</div>
+        <div class="menu-item" style="bottom: 10px; left: 10px;">📝</div>
+        <div class="menu-item" style="top: 10px; left: 10px;">🚩</div>
       </div>
     </div>
-    <svg class="flower" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10,50 Q25,25 50,50 T90,50" id="stem">
-        <animate attributeName="d" 
-                 values="M10,50 Q25,25 50,50 T90,50;
-                         M10,50 Q25,75 50,50 T90,50;
-                         M10,50 Q25,25 50,50 T90,50"
-                 dur="10s" repeatCount="indefinite" />
-      </path>
-      <path d="M45,50 Q50,45 55,50 T65,50" id="petal1">
-        <animate attributeName="d"
-                 values="M45,50 Q50,45 55,50 T65,50;
-                         M45,50 Q50,55 55,50 T65,50;
-                         M45,50 Q50,45 55,50 T65,50"
-                 dur="5s" repeatCount="indefinite" />
-      </path>
-      <path d="M35,50 Q50,35 65,50" id="petal2">
-        <animate attributeName="d"
-                 values="M35,50 Q50,35 65,50;
-                         M35,50 Q50,65 65,50;
-                         M35,50 Q50,35 65,50"
-                 dur="7s" repeatCount="indefinite" />
-      </path>
-    </svg>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search recipes...">
+      <button id="clear-search">Clear</button>
+    </div>
   </div>
 
   <script>
@@ -215,13 +246,13 @@
 
     const card = document.querySelector('.recipe-card');
     const title = card.querySelector('h1');
-    const subtitle = card.querySelector('h2');
-    const content = card.querySelector('.recipe-content');
-    const backButton = card.querySelector('.back-button');
-    const shareButton = card.querySelector('.share-button');
-    const searchButton = card.querySelector('.search-button');
-    const searchContainer = card.querySelector('.search-container');
+    const subtitle = document.getElementById('subtitle');
+    const content = document.getElementById('recipe-content');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const menuItems = document.querySelector('.menu-items');
+    const searchContainer = document.querySelector('.search-container');
     const searchInput = document.getElementById('search-input');
+    const clearSearch = document.getElementById('clear-search');
 
     async function fetchData() {
       try {
@@ -264,8 +295,6 @@
       
       title.textContent = 'Categories';
       subtitle.textContent = '';
-      backButton.style.display = 'none';
-      shareButton.style.display = 'none';
       
       content.innerHTML = Object.keys(recipeData)
         .map(category => `<button class="list-item" onclick="showSubcategories('${category}')">${category}</button>`)
@@ -280,7 +309,6 @@
       
       title.textContent = category;
       subtitle.textContent = 'Subcategories';
-      backButton.style.display = 'block';
       
       content.innerHTML = Object.keys(recipeData[category])
         .map(subcategory => `<button class="list-item" onclick="showRecipes('${subcategory}')">${subcategory}</button>`)
@@ -308,7 +336,6 @@
       
       title.textContent = currentRecipe.RecipeName;
       subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
-      shareButton.style.display = 'block';
       
       content.innerHTML = `
         <div class="ingredients">
@@ -348,12 +375,31 @@
 
       title.textContent = 'Search Results';
       subtitle.textContent = '';
-      backButton.style.display = 'block';
-      shareButton.style.display = 'none';
 
       content.innerHTML = results
         .map(recipe => `<button class="list-item" onclick="showRecipe('${recipe.RecipeName}')">${recipe.RecipeName} (${recipe.category} | ${recipe.subcategory})</button>`)
         .join('');
+    }
+
+    function toggleMenu() {
+      menuToggle.classList.toggle('active');
+      menuItems.classList.toggle('active');
+    }
+
+    function toggleSearch() {
+      searchContainer.classList.toggle('active');
+      if (searchContainer.classList.contains('active')) {
+        searchInput.focus();
+      }
+    }
+
+    function shareRecipe() {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Link copied to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
     }
 
     function updateURL() {
@@ -364,31 +410,7 @@
       window.history.pushState({}, '', url);
     }
 
-    backButton.addEventListener('click', () => {
-      if (currentRecipe) {
-        showRecipes(currentSubcategory);
-      } else if (currentSubcategory) {
-        showSubcategories(currentCategory);
-      } else {
-        showCategories();
-      }
-    });
-
-    shareButton.addEventListener('click', () => {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        alert('Link copied to clipboard!');
-      }).catch(err => {
-        console.error('Failed to copy: ', err);
-      });
-    });
-
-    searchButton.addEventListener('click', () => {
-      searchContainer.style.display = searchContainer.style.display === 'none' ? 'block' : 'none';
-      if (searchContainer.style.display === 'block') {
-        searchInput.focus();
-      }
-    });
+    menuToggle.addEventListener('click', toggleMenu);
 
     searchInput.addEventListener('input', (e) => {
       if (e.target.value) {
@@ -398,6 +420,13 @@
       }
     });
 
+    clearSearch.addEventListener('click', () => {
+      searchInput.value = '';
+      showCategories();
+      toggleSearch();
+    });
+
+    // Check for URL parameters on page load
     window.addEventListener('load', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const category = urlParams.get('category');
@@ -418,26 +447,6 @@
           showCategories();
         }
       });
-    });
-
-    window.addEventListener('popstate', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const category = urlParams.get('category');
-      const subcategory = urlParams.get('subcategory');
-      const recipe = urlParams.get('recipe');
-
-      if (category && subcategory && recipe) {
-        showSubcategories(category);
-        showRecipes(subcategory);
-        showRecipe(recipe);
-      } else if (category && subcategory) {
-        showSubcategories(category);
-        showRecipes(subcategory);
-      } else if (category) {
-        showSubcategories(category);
-      } else {
-        showCategories();
-      }
     });
   </script>
 </body>
