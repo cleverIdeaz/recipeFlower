@@ -30,13 +30,13 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Poppins', sans-serif; /* Better font */
       background-color: var(--bg-color);
       color: var(--text-color);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      height: 100vh; /* Disable scroll */
       overflow: hidden;
       padding: 1rem;
     }
@@ -59,7 +59,7 @@
       transition: all 0.3s ease;
       position: absolute;
       top: 5vh;
-      left: 5vw;
+      left: 5vw; /* Move to the left */
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
@@ -149,6 +149,7 @@
       padding: 1rem;
     }
 
+    /* Side-by-side ingredients and instructions in landscape */
     @media (orientation: landscape) {
       .recipe-content {
         flex-direction: row;
@@ -189,7 +190,7 @@
       color: var(--text-color);
       position: fixed;
       left: 5vw;
-      top: calc(5vh + 70px);
+      top: calc(5vh + 70px); /* Position below the menu button */
       z-index: 10;
       width: 60px;
       height: 60px;
@@ -243,7 +244,7 @@
         display: none;
       }
       .recipe-box {
-        overflow: visible;
+        overflow: visible; /* Fix for print view to show all content */
       }
     }
   </style>
@@ -277,183 +278,228 @@
   </div>
   <div class="toast">Link copied to clipboard!</div>
   
-  <script>
-    const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
+    <script>
+const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
 
-    let recipeData = {};
-    let currentCategory = null;
-    let currentSubcategory = null;
-    let currentRecipe = null;
+let recipeData = {};
+let currentCategory = null;
+let currentSubcategory = null;
+let currentRecipe = null;
 
-    const menu = document.querySelector('.menu');
-    const menuToggle = document.getElementById('menu-toggle');
-    const recipeCard = document.querySelector('.recipe-card');
-    const title = recipeCard.querySelector('h1');
-    const subtitle = recipeCard.querySelector('h2');
-    const content = recipeCard.querySelector('.recipe-content');
-    const searchInput = document.getElementById('search-input');
-    const searchContainer = document.querySelector('.search-container');
-    const backButton = document.querySelector('.back-button');
-    const shareButton = document.querySelector('.share-button');
-    const toast = document.querySelector('.toast');
+const menu = document.querySelector('.menu');
+const menuToggle = document.getElementById('menu-toggle');
+const recipeCard = document.querySelector('.recipe-card');
+const title = recipeCard.querySelector('h1');
+const subtitle = recipeCard.querySelector('h2');
+const content = recipeCard.querySelector('.recipe-content');
+const searchInput = document.getElementById('search-input');
+const searchContainer = document.querySelector('.search-container');
+const backButton = document.querySelector('.back-button');
+const shareButton = document.querySelector('.share-button');
+const toast = document.querySelector('.toast');
 
-    menuToggle.addEventListener('click', () => {
-      menu.classList.toggle('collapsed');
-      menu.classList.toggle('expanded');
-    });
+// Menu toggle functionality
+menuToggle.addEventListener('click', () => {
+  menu.classList.toggle('collapsed');
+  menu.classList.toggle('expanded');
+});
 
-    async function fetchData() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        
-        const data = await response.json();
-        recipeData = data;
-        displayCategories(data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+// Data fetching and organization
+async function fetchData() {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-
-    function displayCategories(data) {
-      title.textContent = 'RecipeFlower';
-      subtitle.textContent = 'Select a Category';
-      content.innerHTML = '';
-
-      Object.keys(data).forEach(category => {
-        const listItem = createListItem(category);
-        content.appendChild(listItem);
-        listItem.addEventListener('click', () => {
-          currentCategory = category;
-          displaySubcategories(category, data[category]);
-        });
-      });
+    
+    const data = await response.json();
+    console.log('Fetched data:', data);
+    
+    if (!Array.isArray(data)) {
+      throw new Error('Expected an array');
     }
+    
+    organizeData(data);
+    showCategories();
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    title.textContent = 'Error loading data';
+  }
+}
 
-    function displaySubcategories(category, subcategories) {
-      title.textContent = category;
-      subtitle.textContent = 'Select a Subcategory';
-      content.innerHTML = '';
-
-      Object.keys(subcategories).forEach(subcategory => {
-        const listItem = createListItem(subcategory);
-        content.appendChild(listItem);
-        listItem.addEventListener('click', () => {
-          currentSubcategory = subcategory;
-          displayRecipes(category, subcategory, subcategories[subcategory]);
-        });
-      });
-
-      showBackButton(displayCategories.bind(null, recipeData));
+function organizeData(rows) {
+  recipeData = rows.reduce((acc, row) => {
+    if (!acc[row.Category]) {
+      acc[row.Category] = {};
     }
-
-    function displayRecipes(category, subcategory, recipes) {
-      title.textContent = subcategory;
-      subtitle.textContent = 'Select a Recipe';
-      content.innerHTML = '';
-
-      Object.keys(recipes).forEach(recipe => {
-        const listItem = createListItem(recipe);
-        content.appendChild(listItem);
-        listItem.addEventListener('click', () => {
-          currentRecipe = recipe;
-          displayRecipe(category, subcategory, recipe, recipes[recipe]);
-        });
-      });
-
-      showBackButton(displaySubcategories.bind(null, category, recipeData[category]));
+    if (!acc[row.Category][row.Subcategory]) {
+      acc[row.Category][row.Subcategory] = [];
     }
+    acc[row.Category][row.Subcategory].push(row);
+    return acc;
+  }, {});
+}
 
-    function displayRecipe(category, subcategory, recipe, recipeContent) {
-      title.textContent = recipe;
-      subtitle.textContent = `${category} - ${subcategory}`;
-      content.innerHTML = '';
+// Navigation functions
+function showCategories() {
+  currentCategory = null;
+  currentSubcategory = null;
+  currentRecipe = null;
+  
+  title.textContent = 'Categories';
+  subtitle.textContent = '';
+  backButton.style.display = 'none';
+  shareButton.style.display = 'none';
+  searchContainer.style.display = 'block';
+  
+  content.innerHTML = `<div class="recipe-box">${Object.keys(recipeData)
+    .map(category => `
+      <button class="list-item" onclick="showSubcategories('${category}')">
+        ${category}
+      </button>
+    `).join('')}</div>`;
 
-      const ingredientsList = createIngredientsList(recipeContent.ingredients);
-      const stepsList = createStepsList(recipeContent.steps);
+  updateURL();
+}
 
-      content.appendChild(ingredientsList);
-      content.appendChild(stepsList);
+function showSubcategories(category) {
+  currentCategory = category;
+  currentSubcategory = null;
+  
+  title.textContent = category;
+  subtitle.textContent = 'Subcategories';
+  backButton.style.display = 'block';
+  shareButton.style.display = 'none';
+  searchContainer.style.display = 'block';
+  
+  content.innerHTML = `<div class="recipe-box">${Object.keys(recipeData[category])
+    .map(subcategory => `
+      <button class="list-item" onclick="showRecipes('${subcategory}')">
+        ${subcategory}
+      </button>
+    `).join('')}</div>`;
 
-      showBackButton(displayRecipes.bind(null, category, subcategory, recipeData[category][subcategory]));
-    }
-
-    function createListItem(text) {
-      const listItem = document.createElement('button');
-      listItem.classList.add('list-item');
-      listItem.textContent = text;
-      return listItem;
-    }
-
-    function createIngredientsList(ingredients) {
-      const list = document.createElement('ul');
-      list.classList.add('recipe-box');
-      const header = document.createElement('h3');
-      header.textContent = 'Ingredients';
-      list.appendChild(header);
-
-      ingredients.forEach(ingredient => {
-        const listItem = document.createElement('li');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        const text = document.createElement('span');
-        text.textContent = ingredient;
-        listItem.appendChild(checkbox);
-        listItem.appendChild(text);
-        list.appendChild(listItem);
-      });
-
-      return list;
-    }
-
-    function createStepsList(steps) {
-      const list = document.createElement('ol');
-      list.classList.add('recipe-box');
-      const header = document.createElement('h3');
-      header.textContent = 'Steps';
-      list.appendChild(header);
-
-      steps.forEach(step => {
-        const listItem = document.createElement('li');
-        listItem.textContent = step;
-        list.appendChild(listItem);
-      });
-
-      return list;
-    }
-
-    function showBackButton(action) {
-      backButton.style.display = 'flex';
-      backButton.addEventListener('click', action, { once: true });
-    }
-
-    backButton.addEventListener('click', () => {
-      backButton.style.display = 'none';
-    });
-
-    shareButton.addEventListener('click', () => {
-      const shareData = {
-        title: currentRecipe || 'RecipeFlower',
-        text: `Check out this recipe: ${currentRecipe || 'RecipeFlower'}`,
-        url: window.location.href
-      };
+  updateURL();
+}
+    function showRecipe(recipeName) {
+      currentRecipe = recipeData[currentCategory][currentSubcategory]
+        .find(r => r.RecipeName === recipeName);
       
-      navigator.share(shareData)
-        .then(() => console.log('Shared successfully'))
-        .catch((error) => {
-          console.error('Error sharing:', error);
-          if (error.name !== 'AbortError') {
-            navigator.clipboard.writeText(shareData.url);
-            toast.textContent = 'Link copied to clipboard!';
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2000);
-          }
-        });
+      title.textContent = currentRecipe.RecipeName;
+      subtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
+      backButton.style.display = 'block';
+      shareButton.style.display = 'block';
+      searchContainer.style.display = 'none';
+      
+      content.innerHTML = `
+        <div class="recipe-box">
+          <h3>Ingredients</h3>
+          <ul>
+            ${currentRecipe.Ingredients.split('•')
+              .filter(ingredient => ingredient.trim() !== '')
+              .map((ingredient, index) => `
+                <li>
+                  <input type="checkbox" id="ingredient-${index}">
+                  <span>${ingredient.trim()}</span>
+                </li>
+              `).join('')}
+          </ul>
+        </div>
+        <div class="recipe-box">
+          <h3>Instructions</h3>
+          <ol>
+            ${currentRecipe.Instructions.split('•')
+              .filter(instruction => instruction.trim() !== '')
+              .map((instruction, index) => `
+                <li>
+                  <input type="checkbox" id="instruction-${index}">
+                  <span>${instruction.trim()}</span>
+                </li>
+              `).join('')}
+          </ol>
+        </div>
+      `;
+
+      updateURL();
+    }
+
+    // Update the back button functionality
+    backButton.addEventListener('click', () => {
+      if (currentRecipe) {
+        showRecipes(currentSubcategory);
+      } else if (currentSubcategory) {
+        showSubcategories(currentCategory);
+      } else if (currentCategory) {
+        showCategories();
+      }
     });
 
-    fetchData();
+
+shareButton.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.textContent = 'Link copied to clipboard!';
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy link:', err);
+    toast.textContent = 'Failed to copy link';
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2000);
+  }
+});
+
+// Menu item functionality
+function addNewRecipe() {
+  // Placeholder for now
+  alert('Add New Recipe functionality coming soon!');
+}
+
+function printRecipe() {
+  window.print();
+}
+
+function flagRecipe() {
+  const reason = prompt('Please enter the reason for flagging this recipe:');
+  if (reason) {
+    alert(`Recipe flagged. Reason: ${reason}`);
+    // Here you would typically send this information to your backend
+  }
+}
+
+// Initialize menu item event listeners
+document.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    const text = e.target.textContent.trim();
+    if (text.includes('Add Recipe')) {
+      addNewRecipe();
+    } else if (text.includes('Print')) {
+      printRecipe();
+    } else if (text.includes('Flag')) {
+      flagRecipe();
+    }
+  });
+});
+
+// Initialize the application
+window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const category = urlParams.get('category');
+  const subcategory = urlParams.get('subcategory');
+  const recipe = urlParams.get('recipe');
+
+  fetchData().then(() => {
+    if (category && subcategory && recipe) {
+      currentCategory = category;
+      currentSubcategory = subcategory;
+      showRecipe(recipe);
+    }
+  });
+});
   </script>
 </body>
 </html>
