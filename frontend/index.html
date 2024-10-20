@@ -1,657 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RecipeFlower</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-color: #f4f4f4;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #dddddd;
-      --accent-color: #4a90e2;
-      --hover-color: #357abd;
-    }
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecipeFlower</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --accent-color: #4a90e2;
+            --hover-color: #357abd;
+            --margin-color: rgba(244, 244, 244, 0.8);
+        }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-color: #121212;
-        --card-bg: #1e1e1e;
-        --text-color: #ffffff;
-        --border-color: #333333;
-        --accent-color: #64b5f6;
-        --hover-color: #42a5f5;
-      }
-    }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --card-bg: #1e1e1e;
+                --text-color: #ffffff;
+                --border-color: #333333;
+                --accent-color: #64b5f6;
+                --hover-color: #42a5f5;
+                --margin-color: rgba(18, 18, 18, 0.8);
+            }
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-      font-family: 'Poppins', Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 1rem;
-    }
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
 
-    .container {
-      position: relative;
-      max-width: 1200px;
-      width: 100%;
-      min-height: 90vh;
-    }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            perspective: 1000px;
+        }
 
-    .recipe-card {
-      background-color: var(--card-bg);
-      border-radius: 15px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      position: relative;
-      min-height: 90vh;
-    }
+        .recipe-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 4rem);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
 
-    .flower-menu {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      z-index: 100;
-    }
+        .margin-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(var(--margin-color), var(--margin-color)) top left/100% 2rem fixed,
+                linear-gradient(var(--margin-color), var(--margin-color)) bottom left/100% 2rem fixed;
+            z-index: 2;
+        }
 
-    .flower-button {
-      background-color: var(--card-bg);
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
+        .flower-menu {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+        }
 
-    .flower-button:hover {
-      transform: rotate(45deg);
-    }
+        .flower-button {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
 
-    .flower-menu-items {
-      position: absolute;
-      top: 60px;
-      right: 0;
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 0.5rem;
-      display: none;
-    }
+        .flower-button:hover {
+            background-color: var(--accent-color);
+            color: white;
+            transform: rotate(45deg);
+        }
 
-    .flower-menu.active .flower-menu-items {
-      display: block;
-    }
+        .flower-menu-items {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            display: none;
+            min-width: 200px;
+        }
 
-    .menu-item {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      color: var(--text-color);
-      text-decoration: none;
-      border-radius: 5px;
-      transition: background-color 0.2s;
-    }
+        .flower-menu.active .flower-menu-items {
+            display: block;
+            animation: menuFadeIn 0.3s ease;
+        }
 
-    .menu-item:hover {
-      background-color: var(--border-color);
-    }
+        @keyframes menuFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .menu-item i {
-      margin-right: 0.5rem;
-      width: 20px;
-    }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
 
-    .back-button {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      background-color: var(--card-bg);
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      z-index: 90;
-    }
+        .menu-item:hover {
+            background-color: var(--border-color);
+        }
 
-    h1, h2 {
-      text-align: center;
-      color: transparent;
-      -webkit-text-stroke: 1px var(--text-color);
-      font-size: clamp(1.5rem, 5vw, 3rem);
-      margin-bottom: 1rem;
-    }
+        .menu-item i {
+            margin-right: 0.5rem;
+            width: 24px;
+            font-size: 1.2rem;
+        }
 
-    h2 {
-      font-size: clamp(1rem, 4vw, 2rem);
-      -webkit-text-stroke: 0.5px var(--text-color);
-    }
+        .recipe-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: 1rem;
+        }
 
-    .recipe-preview {
-      margin-top: 2rem;
-      padding: 1rem;
-      border-radius: 10px;
-      background-color: var(--card-bg);
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
-    }
+        h1, h2 {
+            color: transparent;
+            -webkit-text-stroke: 1px var(--text-color);
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            margin-bottom: 0.5rem;
+        }
 
-    .search-container {
-      margin: 1rem 0;
-      position: relative;
-    }
+        h2 {
+            font-size: clamp(1rem, 4vw, 2rem);
+            -webkit-text-stroke: 0.5px var(--text-color);
+        }
 
-    .search-input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      font-family: 'Poppins', sans-serif;
-    }
+        .recipe-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 1rem;
+            overflow: hidden;
+            flex-grow: 1;
+        }
 
-    .categories-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
+        @media (min-width: 768px) {
+            .recipe-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
 
-    .category-item {
-      background-color: var(--card-bg);
-      padding: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      border: 1px solid var(--border-color);
-    }
+        .recipe-section {
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .category-item:hover {
-      transform: translateY(-2px);
-    }
+        .recipe-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            color: var(--text-color);
+        }
 
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: var(--accent-color);
-      color: white;
-      padding: 1rem;
-      border-radius: 8px;
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
+        .recipe-section-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .recipe-section-content::-webkit-scrollbar {
+            width: 6px;
+        }
 
-    .recipe-content {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
+        .recipe-section-content::-webkit-scrollbar-track {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
 
-    @media (min-width: 768px) {
-      .recipe-content {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
+        .recipe-section-content::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
 
-    .recipe-section {
-      padding: 1rem;
-    }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
 
-    .recipe-section h3 {
-      margin-bottom: 1rem;
-    }
+        .custom-checkbox {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
 
-    .recipe-section ul,
-    .recipe-section ol {
-      padding-left: 1.5rem;
-    }
+        .custom-checkbox:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
 
-    .recipe-section li {
-      margin-bottom: 0.5rem;
-    }
-  </style>
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            z-index: 1001;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .add-recipe-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <main class="recipe-card">
-      <!-- Flower Menu -->
-      <div class="flower-menu" id="flowerMenu">
-        <button class="flower-button" id="flowerButton">
-          <i class="fas fa-seedling"></i>
-        </button>
-        <div class="flower-menu-items">
-          <a href="#" class="menu-item"><i class="fas fa-search"></i> Search</a>
-          <a href="#" class="menu-item"><i class="fas fa-plus"></i> Add Recipe</a>
-          <a href="#" class="menu-item"><i class="fas fa-print"></i> Print</a>
-          <a href="#" class="menu-item"><i class="fas fa-flag"></i> Flag Recipe</a>
-          <a href="#" class="menu-item"><i class="fas fa-share-alt"></i> Share</a>
-          <a href="#" class="menu-item" id="offlineMenuItem">
-            <i class="fas fa-download"></i> Offline Mode (99¢/yr)
-          </a>
-        </div>
-      </div>
+    <div class="margin-decoration"></div>
+    <div class="container">
+        <main class="recipe-card">
+            <div class="flower-menu" id="flowerMenu">
+                <button class="flower-button" id="flowerButton">
+                    <i class="fas fa-seedling"></i>
+                </button>
+                <div class="flower-menu-items">
+                    <a href="#" class="menu-item" id="homeMenuItem">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="#" class="menu-item" id="fullscreenMenuItem">
+                        <i class="fas fa-expand"></i> Toggle Fullscreen
+                    </a>
+                    <a href="#" class="menu-item" id="addRecipeMenuItem">
+                        <i class="fas fa-plus"></i> Add Recipe
+                    </a>
+                    <a href="#" class="menu-item" id="printMenuItem">
+                        <i class="fas fa-print"></i> Print
+                    </a>
+                    <a href="#" class="menu-item" id="shareMenuItem">
+                        <i class="fas fa-share-alt"></i> Share
+                    </a>
+                    <a href="#" class="menu-item" id="themeMenuItem">
+                        <i class="fas fa-moon"></i> Toggle Theme
+                    </a>
+                    <a href="#" class="menu-item" id="offlineMenuItem">
+                        <i class="fas fa-download"></i> Offline Mode (99¢/yr)
+                    </a>
+                </div>
+            </div>
+            <div class="recipe-header">
+                <h1>RecipeFlower</h1>
+                <h2 id="recipeTitle">Chicken Parmesan</h2>
+            </div>
+            <div class="recipe-content">
+                <div class="recipe-section">
+                    <h3>Ingredients</h3>
+                    <div class="recipe-section-content">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>4 chicken breasts</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>2 cups marinara sauce</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>1 cup mozzarella cheese, shredded</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>1/2 cup parmesan cheese, grated</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="recipe-section">
+                    <h3>Instructions</h3>
+                    <div class="recipe-section-content">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>Preheat oven to 375°F (190°C)</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>Pound chicken breasts to even thickness</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>Season chicken with salt and pepper</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="custom-checkbox">
+                            <span>Bake for 25-30 minutes until golden brown</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="add-recipe-form" id="addRecipeForm">
+        <h2>Add New Recipe</h2>
+        <form id="recipeForm">
+            <!-- Form content will be dynamically added -->
+        </form>
+    </div>
+    <div class="toast" id="toast"></div>
 
-      <!-- Back Button -->
-      <button class="back-button" id="backButton" style="display: none;">
-        <i class="fas fa-arrow-left"></i>
-      </button>
+    <script>
+        // DOM Elements
+        const flowerMenu = document.getElementById('flowerMenu');
+        const flowerButton = document.getElementById('flowerButton');
+        const addRecipeForm = document.getElementById('addRecipeForm');
+        const overlay = document.getElementById('overlay');
+        const toast = document.getElementById('toast');
 
-      <!-- Main Content -->
-      <div class="recipe-header">
-        <h1 id="pageTitle">RecipeFlower</h1>
-        <h2 id="pageSubtitle"></h2>
-      </div>
+        // Menu Items
+        const homeMenuItem = document.getElementById('homeMenuItem');
+        const fullscreenMenuItem = document.getElementById('fullscreenMenuItem');
+        const addRecipeMenuItem = document.getElementById('addRecipeMenuItem');
+        const printMenuItem = document.getElementById('printMenuItem');
+        const shareMenuItem = document.getElementById('shareMenuItem');
+        const themeMenuItem = document.getElementById('themeMenuItem');
+        const offlineMenuItem = document.getElementById('offlineMenuItem');
 
-      <!-- Search Bar -->
-      <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search recipes...">
-      </div>
+        // Event Listeners
+        flowerButton.addEventListener('click', () => {
+            flowerMenu.classList.toggle('active');
+        });
 
-      <!-- Main Content Area -->
-      <div id="mainContent"></div>
-
-      <!-- Recipe Preview -->
-      <div id="recipePreview" class="recipe-preview"></div>
-    </main>
-  </div>
-
-  <!-- Toast Notification -->
-  <div class="toast" id="toast"></div>
-
-<script>
-    const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
-    let recipeData = {};
-    let currentCategory = null;
-    let currentSubcategory = null;
-    let currentRecipe = null;
-    let randomRecipeInterval;
-
-    // DOM Elements
-    const flowerMenu = document.getElementById('flowerMenu');
-    const flowerButton = document.getElementById('flowerButton');
-    const offlineMenuItem = document.getElementById('offlineMenuItem');
-    const backButton = document.getElementById('backButton');
-    const pageTitle = document.getElementById('pageTitle');
-    const pageSubtitle = document.getElementById('pageSubtitle');
-    const mainContent = document.getElementById('mainContent');
-    const searchInput = document.getElementById('searchInput');
-    const recipePreview = document.getElementById('recipePreview');
-    const toast = document.getElementById('toast');
-
-    // Initialize the application
-    async function init() {
-        try {
-            const response = await fetch(API_URL);
-            const data = await response.json();
-            organizeData(data);
-            showCategories();
-            startRandomRecipePreview();
-            setupEventListeners();
-            handleURLParams();
-        } catch (error) {
-            console.error('Error initializing app:', error);
-            pageTitle.textContent = 'Error loading data';
-        }
-    }
-
-    // Event Listeners Setup
-    function setupEventListeners() {
-        flowerButton.addEventListener('click', toggleFlowerMenu);
-        backButton.addEventListener('click', handleBack);
-        searchInput.addEventListener('input', handleSearch);
-        offlineMenuItem.addEventListener('click', handleOfflineMode);
-        
-        // Close flower menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!flowerMenu.contains(e.target)) {
                 flowerMenu.classList.remove('active');
             }
         });
 
-        // Setup menu item listeners
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const action = e.target.textContent.trim();
-                handleMenuAction(action);
-            });
-        });
-    }
+        // Fullscreen functionality
+        fullscreenMenuItem.addEventListener('click', toggleFullscreen);
 
-    function handleMenuAction(action) {
-        switch (action) {
-            case 'Search':
-                searchInput.focus();
-                break;
-            case 'Add Recipe':
-                window.location.href = 'add-recipe.html';
-                break;
-            case 'Print':
-                window.print();
-                break;
-            case 'Flag Recipe':
-                handleFlagRecipe();
-                break;
-            case 'Share':
-                handleShare();
-                break;
-        }
-        flowerMenu.classList.remove('active');
-    }
-
-    function handleOfflineMode() {
-      // Trigger payment portal (for demo purposes, it shows a toast)
-      // You would integrate a payment service like Stripe or PayPal here
-      showToast("You will be redirected to a payment portal for 99¢/year");
-    }
-
-    function toggleFlowerMenu() {
-        flowerMenu.classList.toggle('active');
-    }
-
-    // Handle Back Navigation
-    function handleBack() {
-        if (currentRecipe) {
-            showSubcategories(currentCategory);
-            currentRecipe = null;
-        } else if (currentSubcategory) {
-            showCategories();
-            currentSubcategory = null;
-        } else if (currentCategory) {
-            showCategories();
-            currentCategory = null;
-        }
-        updateURL();
-    }
-
-    // URL Management
-    function updateURL() {
-        const params = new URLSearchParams();
-        if (currentCategory) params.set('category', currentCategory);
-        if (currentSubcategory) params.set('subcategory', currentSubcategory);
-        if (currentRecipe) params.set('recipe', currentRecipe.RecipeName);
-        window.history.pushState({}, '', `?${params.toString()}`);
-    }
-
-    // Data Organization
-    function organizeData(rows) {
-        recipeData = rows.reduce((acc, row) => {
-            if (!acc[row.Category]) {
-                acc[row.Category] = {};
-            }
-            if (!acc[row.Category][row.Subcategory]) {
-                acc[row.Category][row.Subcategory] = [];
-            }
-            acc[row.Category][row.Subcategory].push(row);
-            return acc;
-        }, {});
-    }
-
-    // Random Recipe Preview
-    function startRandomRecipePreview() {
-        if (randomRecipeInterval) clearInterval(randomRecipeInterval);
-        
-        function updatePreview() {
-            const categories = Object.keys(recipeData);
-            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-            const subcategories = Object.keys(recipeData[randomCategory]);
-            const randomSubcategory = subcategories[Math.floor(Math.random() * subcategories.length)];
-            const recipes = recipeData[randomCategory][randomSubcategory];
-            const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
-            
-            renderRecipePreview(randomRecipe);
-        }
-
-        updatePreview();
-        randomRecipeInterval = setInterval(updatePreview, 10000);
-    }
-
-    function renderRecipePreview(recipe) {
-        if (!recipe) return;
-        
-        recipePreview.innerHTML = `
-            <div class="recipe-preview-content">
-                <h3>${recipe.RecipeName}</h3>
-                <p>${recipe.Category} | ${recipe.Subcategory}</p>
-                <div class="recipe-content">
-                    <div class="recipe-section">
-                        <h4>Ingredients</h4>
-                        <ul>
-                            ${recipe.Ingredients.split('•')
-                                .filter(i => i.trim())
-                                .map(i => `<li>${i.trim()}</li>`)
-                                .join('')}
-                        </ul>
-                    </div>
-                    <div class="recipe-section">
-                        <h4>Instructions</h4>
-                        <ol>
-                            ${recipe.Instructions.split('•')
-                                .filter(i => i.trim())
-                                .map(i => `<li>${i.trim()}</li>`)
-                                .join('')}
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // View Management
-    function showCategories() {
-        pageTitle.textContent = 'Categories';
-        pageSubtitle.textContent = '';
-        backButton.style.display = 'none';
-        searchInput.style.display = 'block';
-
-        mainContent.innerHTML = `
-            <div class="categories-list">
-                ${Object.keys(recipeData).map(category => `
-                    <div class="category-item" onclick="showSubcategories('${category}')">
-                        ${category}
-                    </div>
-                `).join('')}
-            </div>
-        `;
-
-        startRandomRecipePreview();
-        updateURL();
-    }
-
-    function showSubcategories(category) {
-        currentCategory = category;
-        pageTitle.textContent = category;
-        pageSubtitle.textContent = 'Subcategories';
-        backButton.style.display = 'block';
-        searchInput.style.display = 'block';
-
-        mainContent.innerHTML = `
-            <div class="categories-list">
-                ${Object.keys(recipeData[category]).map(subcategory => `
-                    <div class="category-item" onclick="showRecipes('${subcategory}')">
-                        ${subcategory}
-                    </div>
-                `).join('')}
-            </div>
-        `;
-
-        recipePreview.style.display = 'none';
-        updateURL();
-    }
-
-    function showRecipes(subcategory) {
-        currentSubcategory = subcategory;
-        pageTitle.textContent = subcategory;
-        pageSubtitle.textContent = currentCategory;
-        backButton.style.display = 'block';
-        searchInput.style.display = 'block';
-
-        mainContent.innerHTML = `
-            <div class="categories-list">
-                ${recipeData[currentCategory][subcategory].map(recipe => `
-                    <div class="category-item" onclick="showRecipe(${JSON.stringify(recipe).replace(/"/g, '&quot;')})">
-                        ${recipe.RecipeName}
-                    </div>
-                `).join('')}
-            </div>
-        `;
-
-        recipePreview.style.display = 'none';
-        updateURL();
-    }
-
-    function showRecipe(recipe) {
-        currentRecipe = recipe;
-        pageTitle.textContent = recipe.RecipeName;
-        pageSubtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
-        backButton.style.display = 'block';
-        searchInput.style.display = 'none';
-
-        mainContent.innerHTML = `
-            <div class="recipe-content">
-                <div class="recipe-section">
-                    <h3>Ingredients</h3>
-                    <ul>
-                        ${recipe.Ingredients.split('•')
-                            .filter(i => i.trim())
-                            .map(i => `
-                                <li>
-                                    <input type="checkbox" id="ingredient-${i}">
-                                    <span>${i.trim()}</span>
-                                </li>
-                            `).join('')}
-                    </ul>
-                </div>
-                <div class="recipe-section">
-                    <h3>Instructions</h3>
-                    <ol>
-                        ${recipe.Instructions.split('•')
-                            .filter(i => i.trim())
-                            .map(i => `
-                                <li>
-                                    <input type="checkbox" id="instruction-${i}">
-                                    <span>${i.trim()}</span>
-                                </li>
-                            `).join('')}
-                    </ol>
-                </div>
-            </div>
-        `;
-
-        recipePreview.style.display = 'none';
-        updateURL();
-    }
-
-    // Search Functionality
-    function handleSearch(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        let results = [];
-
-        // Search through all recipes
-        Object.keys(recipeData).forEach(category => {
-            Object.keys(recipeData[category]).forEach(subcategory => {
-                recipeData[category][subcategory].forEach(recipe => {
-                    if (recipe.RecipeName.toLowerCase().includes(searchTerm) ||
-                        recipe.Ingredients.toLowerCase().includes(searchTerm) ||
-                        recipe.Instructions.toLowerCase().includes(searchTerm)) {
-                        results.push({...recipe, category, subcategory});
-                    }
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
                 });
-            });
+                fullscreenMenuItem.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+            } else {
+                if (document.exitFullscreen) {
+
+document.exitFullscreen();
+        fullscreenMenuItem.innerHTML = '<i class="fas fa-expand"></i> Enter Fullscreen';
+    }
+}
+
+// Add Recipe Form Toggle
+addRecipeMenuItem.addEventListener('click', () => {
+    addRecipeForm.style.display = 'block';
+    overlay.style.display = 'block';
+});
+
+overlay.addEventListener('click', () => {
+    addRecipeForm.style.display = 'none';
+    overlay.style.display = 'none';
+});
+
+// Handle Offline Mode Payment
+offlineMenuItem.addEventListener('click', () => {
+    showToast('You will be redirected to a payment portal for 99¢/year.');
+    // Code for triggering the payment portal would go here (e.g., Stripe or PayPal integration)
+});
+
+// Show toast notification
+function showToast(message) {
+    toast.textContent = message;
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
+}
+
+// Saving and loading checkbox states
+const saveCheckboxStates = () => {
+    const checkboxes = document.querySelectorAll('.custom-checkbox');
+    const states = Array.from(checkboxes).map(cb => cb.checked);
+    localStorage.setItem('recipeCheckboxStates', JSON.stringify(states));
+};
+
+const loadCheckboxStates = () => {
+    const states = JSON.parse(localStorage.getItem('recipeCheckboxStates'));
+    if (states) {
+        const checkboxes = document.querySelectorAll('.custom-checkbox');
+        checkboxes.forEach((cb, i) => {
+            cb.checked = states[i];
         });
-
-        // Display results
-        if (searchTerm) {
-            mainContent.innerHTML = `
-                <div class="categories-list">
-                    ${results.map(recipe => `
-                        <div class="category-item" onclick="showRecipe(${JSON.stringify(recipe).replace(/"/g, '&quot;')})">
-                            <strong>${recipe.RecipeName}</strong><br>
-                            <small>${recipe.category} | ${recipe.subcategory}</small>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            recipePreview.style.display = 'none';
-        } else {
-            showCategories();
-        }
     }
+};
 
-    // Share Functionality
-    function handleShare() {
-        if (navigator.share) {
-            navigator.share({
-                title: document.title,
-                url: window.location.href
-            }).catch(console.error);
-        } else {
-            navigator.clipboard.writeText(window.location.href)
-                .then(() => {
-                    toast.textContent = 'Link copied to clipboard!';
-                    toast.style.display = 'block';
-                    setTimeout(() => {
-                        toast.style.display = 'none';
-                    }, 2000);
-                })
-                .catch(console.error);
-        }
-    }
+// Add event listeners for checkbox state saving
+document.querySelectorAll('.custom-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', saveCheckboxStates);
+});
 
-    // Flag Recipe Functionality
-    function handleFlagRecipe() {
-        const reason = prompt('Please enter the reason for flagging this recipe:');
-        if (reason) {
-            // Here you would typically send this to your backend
-            showToast('Recipe has been flagged for review');
-        }
-    }
+// Load saved states on page load
+document.addEventListener('DOMContentLoaded', loadCheckboxStates);
 
-    // Show toast
-    function showToast(message) {
-        toast.textContent = message;
-        toast.style.display = 'block';
-
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
-    }
-
-    // Initialize the app
-    init();
 </script>
-
 </body>
-
 </html>
