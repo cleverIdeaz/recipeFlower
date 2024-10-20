@@ -8,291 +8,694 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ... (previous styles remain unchanged) ... */
+    :root {
+      --bg-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-color: #dddddd;
+      --accent-color: #4a90e2;
+      --hover-color: #357abd;
+      --margin-color: rgba(244, 244, 244, 0.8);
+    }
 
-    /* Updated styles for flower menu and back button */
-    .flower-button,
-    .back-button {
-      background-color: white;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #ffffff;
+        --border-color: #333333;
+        --accent-color: #64b5f6;
+        --hover-color: #42a5f5;
+        --margin-color: rgba(18, 18, 18, 0.8);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: var(--bg-color);
       color: var(--text-color);
-      width: 60px;
-      height: 60px;
-      font-size: 1.5rem;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
     }
 
-    /* New styles for scrollable recipe content */
-    .recipe-section-content {
-      max-height: 300px;
-      overflow-y: auto;
-      padding-right: 10px;
+    .margin-decoration {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      background: 
+        linear-gradient(var(--margin-color), var(--margin-color)) top left/100% 2rem fixed,
+        linear-gradient(var(--margin-color), var(--margin-color)) bottom left/100% 2rem fixed;
+      z-index: 2;
     }
 
-    /* Styles for the Add Recipe form */
-    .add-recipe-form {
-      display: none;
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
       padding: 2rem;
+      perspective: 1000px;
+    }
+
+    .recipe-card {
       background-color: var(--card-bg);
       border-radius: 15px;
+      padding: 2rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      width: 90%;
+      max-width: 1200px;
+      height: calc(100vh - 4rem);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
     }
 
-    .add-recipe-form h2 {
+    .flower-menu {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+    }
+
+    .flower-button,
+    .back-button {
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .flower-button:hover,
+    .back-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+
+    .flower-menu-items {
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 0.5rem;
+      display: none;
+      min-width: 200px;
+    }
+
+    .flower-menu.active .flower-menu-items {
+      display: block;
+      animation: menuFadeIn 0.3s ease;
+    }
+
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: var(--text-color);
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+
+    .menu-item:hover {
+      background-color: var(--border-color);
+    }
+
+    .menu-item i {
+      margin-right: 0.5rem;
+      width: 24px;
+      font-size: 1.2rem;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 90;
+    }
+
+    .recipe-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-top: 1rem;
+    }
+
+    h1, h2 {
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text-color);
+      font-size: clamp(1.5rem, 5vw, 3rem);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: clamp(1rem, 4vw, 2rem);
+      -webkit-text-stroke: 0.5px var(--text-color);
+    }
+
+    .recipe-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 1rem;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    @media (min-width: 768px) {
+      .recipe-content {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .recipe-section {
+      background-color: var(--bg-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .recipe-section h3 {
       margin-bottom: 1rem;
+      font-size: 1.25rem;
+      color: var(--text-color);
+    }
+
+    .recipe-section-content {
+      height: calc(100% - 3rem);
+      overflow-y: auto;
+      padding-right: 1rem;
+    }
+
+    .recipe-section-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .recipe-section-content::-webkit-scrollbar-track {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .recipe-section-content::-webkit-scrollbar-thumb {
+      background: var(--accent-color);
+      border-radius: 3px;
+    }
+
+    .recipe-section ul,
+    .recipe-section ol {
+      padding-left: 1.5rem;
+    }
+
+    .recipe-section li {
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .recipe-section li a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .recipe-section li a:hover {
+      color: var(--hover-color);
+    }
+
+    .add-recipe-form {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .form-group {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
+      font-weight: 600;
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.75rem;
       border: 1px solid var(--border-color);
-      border-radius: 4px;
+      border-radius: 8px;
       background-color: var(--bg-color);
       color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.2s;
     }
 
-    .form-group textarea {
-      min-height: 100px;
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-row input {
+      flex: 1;
+    }
+
+    .input-row button {
+      padding: 0.5rem;
+      border: none;
+      background-color: var(--accent-color);
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .input-row button:hover {
+      background-color: var(--hover-color);
     }
 
     .submit-button {
       background-color: var(--accent-color);
       color: white;
       border: none;
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
+      padding: 1rem 2rem;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+      width: 100%;
     }
 
     .submit-button:hover {
       background-color: var(--hover-color);
     }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 999;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: var(--accent-color);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+      z-index: 1001;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .custom-checkbox {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .custom-checkbox:checked {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .custom-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
+  <div class="margin-decoration"></div>
+  
   <div class="container">
     <main class="recipe-card">
-      <!-- ... (previous HTML structure remains unchanged) ... -->
+      <div class="flower-menu" id="flowerMenu">
+        <button class="flower-button" id="flowerButton">
+          <i class="fas fa-seedling"></i>
+        </button>
+        <div class="flower-menu-items">
+          <a href="#" class="menu-item" id="fullscreenMenuItem">
+            <i class="fas fa-expand"></i> Toggle Fullscreen
+          </a>
+          <a href="#" class="menu-item" id="addRecipeMenuItem">
+            <i class="fas fa-plus"></i> Add Recipe
+          </a>
+          <a href="#" class="menu-item">
+            <i class="fas fa-print"></i> Print
+          </a>
+          <a href="#" class="menu-item">
+            <i class="fas fa-share-alt"></i> Share
+          </a>
+          <a href="#" class="menu-item">
+            <i class="fas fa-moon"></i> Toggle Theme
+          </a>
+        </div>
+      </div>
 
-      <!-- Add Recipe Form -->
-      <div id="addRecipeForm" class="add-recipe-form">
-        <h2>Add New Recipe</h2>
-        <form id="recipeForm">
-          <div class="form-group">
-            <label for="recipeName">Recipe Name:</label>
-            <input type="text" id="recipeName" name="recipeName" required>
+      <button class="back-button" id="backButton" style="display: none;">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+
+      <div class="recipe-header">
+        <h1>RecipeFlower</h1>
+        <h2 id="recipeTitle">Chicken Parmesan</h2>
+      </div>
+
+      <div class="recipe-content">
+        <div class="recipe-section">
+          <h3>Ingredients</h3>
+          <div class="recipe-section-content">
+            <ul id="ingredientsList">
+              <li>
+                <div class="checkbox-container">
+                  <input type="checkbox" class="custom-checkbox">
+                  <span>4 chicken breasts</span>
+                </div>
+              </li>
+              <li>
+                <div class="checkbox-container">
+                  <input type="checkbox" class="custom-checkbox">
+                  <span>2 cups marinara sauce (<a href="#">recommended brand</a>)</span>
+                </div>
+              </li>
+              <!-- Add more ingredients as needed -->
+            </ul>
           </div>
-          <div class="form-group">
-            <label for="category">Category:</label>
-            <input type="text" id="category" name="category" required>
+        </div>
+
+        <div class="recipe-section">
+          <h3>Instructions</h3>
+          <div class="recipe-section-content">
+            <ol id="instructionsList">
+              <li>
+                <div class="checkbox-container">
+                  <input type="checkbox" class="custom-checkbox">
+                  <span>Preheat oven to 375°F (190°C)</span>
+                </div>
+              </li>
+              <li>
+                <div class="checkbox-container">
+                  <input type="checkbox" class="custom-checkbox">
+                  <span>Pound chicken breasts to even thickness (<a href="#">view technique</a>)</span>
+                </div>
+              </li>
+              <!-- Add more instructions as needed -->
+            </ol>
           </div>
-          <div class="form-group">
-            <label for="subcategory">Subcategory:</label>
-            <input type="text" id="subcategory" name="subcategory" required>
-          </div>
-          <div class="form-group">
-            <label for="ingredients">Ingredients (one per line, optional link after '|'):</label>
-            <textarea id="ingredients" name="ingredients" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="instructions">Instructions (one per line, optional link after '|'):</label>
-            <textarea id="instructions" name="instructions" required></textarea>
-          </div>
-          <button type="submit" class="submit-button">Add Recipe</button>
-        </form>
+        </div>
       </div>
     </main>
   </div>
 
-  <script>
-    // ... (previous JavaScript code remains unchanged) ...
+  <!-- Add Recipe Form -->
+  <div class="overlay" id="overlay"></div>
+  
+  <div class="add-recipe-form" id="addRecipeForm">
+    <h2>Add New Recipe</h2>
+    <form id="recipeForm">
+      <div class="form-group">
+        <label for="recipeTitle">Recipe Title</label>
+        <input type="text" id="recipeTitle" name="title" required>
+      </div>
 
-    // Update showRecipe function to include scrollable content and handle links
-    function showRecipe(recipe) {
-      currentRecipe = recipe;
-      pageTitle.textContent = recipe.RecipeName;
-      pageSubtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
-      backButton.style.display = 'block';
-      searchInput.style.display = 'none';
-
-      mainContent.innerHTML = `
-        <div class="recipe-content">
-          <div class="recipe-section">
-            <h3>Ingredients</h3>
-            <div class="recipe-section-content">
-              <ul>
-                ${recipe.Ingredients.split('•')
-                  .filter(i => i.trim())
-                  .map(i => {
-                    const [ingredient, link] = i.split('|').map(part => part.trim());
-                    return `
-                      <li>
-                        <input type="checkbox" id="ingredient-${ingredient}">
-                        <span>${link ? `<a href="${link}" target="_blank">${ingredient}</a>` : ingredient}</span>
-                      </li>
-                    `;
-                  }).join('')}
-              </ul>
-            </div>
-          </div>
-          <div class="recipe-section">
-            <h3>Instructions</h3>
-            <div class="recipe-section-content">
-              <ol>
-                ${recipe.Instructions.split('•')
-                  .filter(i => i.trim())
-                  .map((i, index) => {
-                    const [instruction, link] = i.split('|').map(part => part.trim());
-                    return `
-                      <li>
-                        <input type="checkbox" id="instruction-${index}">
-                        <span>${link ? `<a href="${link}" target="_blank">${instruction}</a>` : instruction}</span>
-                      </li>
-                    `;
-                  }).join('')}
-              </ol>
-            </div>
+      <div class="form-group">
+        <label for="ingredients">Ingredients</label>
+        <div id="ingredientInputs">
+          <div class="input-row">
+            <input type="text" name="ingredients[]" placeholder="Ingredient" required>
+            <input type="text" name="ingredientLinks[]" placeholder="Optional link">
+            <button type="button" class="remove-row">×</button>
           </div>
         </div>
-      `;
+        <button type="button" id="addIngredientBtn" class="submit-button">Add Ingredient</button>
+      </div>
 
-      recipePreview.style.display = 'none';
-      updateURL();
-      loadCheckboxStates();
+      <div class="form-group">
+        <label for="instructions">Instructions</label>
+        <div id="instructionInputs">
+          <div class="input-row">
+            <input type="text" name="instructions[]" placeholder="Instruction step" required>
+            <input type="text" name="instructionLinks[]" placeholder="Optional link">
+            <button type="button" class="remove-row">×</button>
+          </div>
+        </div>
+        <button type="button" id="addInstructionBtn" class="submit-button">Add Instruction</button>
+      </div>
+
+      <button type="submit" class="submit-button">Save Recipe</button>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Fullscreen functionality
+    const fullscreenMenuItem = document.getElementById('fullscreenMenuItem');
+    
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+        fullscreenMenuItem.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          fullscreenMenuItem.innerHTML = '<i class="fas fa-expand"></i> Enter Fullscreen';
+        }
+      }
     }
 
-    // Add functions for handling checkbox states with cookies
+    fullscreenMenuItem.addEventListener('click', toggleFullscreen);
+
+    // Flower menu functionality
+    const flowerMenu = document.getElementById('flowerMenu');
+    const flowerButton = document.getElementById('flowerButton');
+    
+    flowerButton.addEventListener('click', () => {
+      flowerMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!flowerMenu.contains(e.target)) {
+        flowerMenu.classList.remove('active');
+      }
+    });
+
+    // Add Recipe form functionality
+    const addRecipeMenuItem = document.getElementById('addRecipeMenuItem');
+    const addRecipeForm = document.getElementById('addRecipeForm');
+    const overlay = document.getElementById('overlay');
+    
+    addRecipeMenuItem.addEventListener('click', () => {
+      addRecipeForm.style.display = 'block';
+      overlay.style.display = 'block';
+    });
+
+    overlay.addEventListener('click', () => {
+      addRecipeForm.style.display = 'none';
+      overlay.style.display = 'none';
+    });
+
+    // Form input row functionality
+    function addInputRow(containerId, inputName) {
+      const container = document.getElementById(containerId);
+      const newRow = document.createElement('div');
+      newRow.className = 'input-row';
+      newRow.innerHTML = `
+        <input type="text" name="${inputName}[]" placeholder="${inputName === 'ingredients' ? 'Ingredient' : 'Instruction step'}" required>
+        <input type="text" name="${inputName}Links[]" placeholder="Optional link">
+        <button type="button" class="remove-row">×</button>
+      `;
+      container.appendChild(newRow);
+    }
+
+    document.getElementById('addIngredientBtn').addEventListener('click', () => {
+      addInputRow('ingredientInputs', 'ingredients');
+    });
+
+    document.getElementById('addInstructionBtn').addEventListener('click', () => {
+      addInputRow('instructionInputs', 'instructions');
+    });
+
+    // Remove input row functionality
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-row')) {
+        e.target.parentElement.remove();
+      }
+    });
+
+    // Save checkbox states to cookies
     function saveCheckboxStates() {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      const states = {};
-      checkboxes.forEach(checkbox => {
-        states[checkbox.id] = checkbox.checked;
-      });
-      document.cookie = `recipeStates_${currentRecipe.RecipeName}=${JSON.stringify(states)}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
+      const checkboxes = document.querySelectorAll('.custom-checkbox');
+      const states = Array.from(checkboxes).map(cb => cb.checked);
+      localStorage.setItem('recipeCheckboxStates', JSON.stringify(states));
     }
 
     function loadCheckboxStates() {
-      const cookieName = `recipeStates_${currentRecipe.RecipeName}`;
-      const cookie = document.cookie.split('; ').find(row => row.startsWith(cookieName));
-      if (cookie) {
-        const states = JSON.parse(cookie.split('=')[1]);
-        Object.keys(states).forEach(id => {
-          const checkbox = document.getElementById(id);
-          if (checkbox) {
-            checkbox.checked = states[id];
+      const states = JSON.parse(localStorage.getItem('recipeCheckboxStates'));
+      if (states) {
+        const checkboxes = document.querySelectorAll('.custom-checkbox');
+        checkboxes.forEach((cb, i) => {
+          if (states[i] !== undefined) {
+            cb.checked = states[i];
           }
         });
       }
     }
 
-    // Add event listeners for checkbox changes
-    mainContent.addEventListener('change', (e) => {
-      if (e.target.type === 'checkbox') {
-        saveCheckboxStates();
+    // Add event listeners for checkbox state saving
+    document.querySelectorAll('.custom-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', saveCheckboxStates);
+    });
+
+    // Load saved states on page load
+    document.addEventListener('DOMContentLoaded', loadCheckboxStates);
+
+    // Form submission handler
+    document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Collect form data
+      const formData = new FormData(e.target);
+      const recipeData = {
+        title: formData.get('title'),
+        ingredients: [],
+        instructions: []
+      };
+
+      // Process ingredients with links
+      const ingredientInputs = document.querySelectorAll('input[name="ingredients[]"]');
+      const ingredientLinks = document.querySelectorAll('input[name="ingredientLinks[]"]');
+      
+      ingredientInputs.forEach((input, index) => {
+        const ingredient = input.value;
+        const link = ingredientLinks[index].value;
+        recipeData.ingredients.push({
+          text: ingredient,
+          link: link || null
+        });
+      });
+
+      // Process instructions with links
+      const instructionInputs = document.querySelectorAll('input[name="instructions[]"]');
+      const instructionLinks = document.querySelectorAll('input[name="instructionLinks[]"]');
+      
+      instructionInputs.forEach((input, index) => {
+        const instruction = input.value;
+        const link = instructionLinks[index].value;
+        recipeData.instructions.push({
+          text: instruction,
+          link: link || null
+        });
+      });
+
+      try {
+        const response = await fetch('/api/recipes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(recipeData)
+        });
+
+        if (response.ok) {
+          showToast('Recipe added successfully!');
+          addRecipeForm.style.display = 'none';
+          overlay.style.display = 'none';
+          e.target.reset();
+        } else {
+          throw new Error('Failed to add recipe');
+        }
+      } catch (error) {
+        showToast('Error adding recipe: ' + error.message);
       }
     });
 
-    // Add clear and select all buttons
-    function addCheckboxButtons() {
-      const buttonContainer = document.createElement('div');
-      buttonContainer.innerHTML = `
-        <button onclick="selectAllCheckboxes()">Select All</button>
-        <button onclick="clearAllCheckboxes()">Clear All</button>
-      `;
-      mainContent.insertBefore(buttonContainer, mainContent.firstChild);
+    // Toast notification functionality
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
     }
-
-    function selectAllCheckboxes() {
-      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.checked = true;
-      });
-      saveCheckboxStates();
-    }
-
-    function clearAllCheckboxes() {
-      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.checked = false;
-      });
-      saveCheckboxStates();
-    }
-
-    // Update showRecipe function to add checkbox buttons
-    const originalShowRecipe = showRecipe;
-    showRecipe = function(recipe) {
-      originalShowRecipe(recipe);
-      addCheckboxButtons();
-    };
-
-    // Add Recipe Form Handling
-    function showAddRecipeForm() {
-      document.getElementById('addRecipeForm').style.display = 'block';
-      mainContent.style.display = 'none';
-    }
-
-    function handleAddRecipe(e) {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const newRecipe = {
-        RecipeName: formData.get('recipeName'),
-        Category: formData.get('category'),
-        Subcategory: formData.get('subcategory'),
-        Ingredients: formData.get('ingredients').replace(/\n/g, '•'),
-        Instructions: formData.get('instructions').replace(/\n/g, '•')
-      };
-
-      // Send POST request to your backend
-      fetch('/api/recipes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newRecipe),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-        // Update local data and UI
-        if (!recipeData[newRecipe.Category]) {
-          recipeData[newRecipe.Category] = {};
-        }
-        if (!recipeData[newRecipe.Category][newRecipe.Subcategory]) {
-          recipeData[newRecipe.Category][newRecipe.Subcategory] = [];
-        }
-        recipeData[newRecipe.Category][newRecipe.Subcategory].push(newRecipe);
-        showCategories();
-        document.getElementById('addRecipeForm').style.display = 'none';
-        mainContent.style.display = 'block';
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-    }
-
-    document.getElementById('recipeForm').addEventListener('submit', handleAddRecipe);
-
-    // Update handleMenuAction function to show Add Recipe form
-    function handleMenuAction(action) {
-      switch (action) {
-        case 'Add Recipe':
-          showAddRecipeForm();
-          break;
-        // ... (other cases remain unchanged) ...
-      }
-      flowerMenu.classList.remove('active');
-    }
-
-    // Initialize the app
-    init();
   </script>
 </body>
-</html>
+</html>                    
