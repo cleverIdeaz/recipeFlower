@@ -7,7 +7,7 @@
   <title>RecipeFlower</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    :root {
+ :root {
       --bg-color: #f4f4f4;
       --card-bg: #ffffff;
       --text-color: #333333;
@@ -30,14 +30,13 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif; /* Better font */
+      font-family: Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh; /* Disable scroll */
-      overflow: hidden;
+      min-height: 100vh;
       padding: 1rem;
     }
 
@@ -46,7 +45,14 @@
       max-width: 1200px;
       width: 100%;
       height: 90vh;
-      margin: auto;
+    }
+
+    .margin {
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0;
     }
 
     .menu {
@@ -59,7 +65,7 @@
       transition: all 0.3s ease;
       position: absolute;
       top: 5vh;
-      left: 5vw; /* Move to the left */
+      left: 5vw;
       z-index: 10;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
@@ -114,6 +120,7 @@
       padding: 2rem;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
@@ -149,16 +156,6 @@
       padding: 1rem;
     }
 
-    /* Side-by-side ingredients and instructions in landscape */
-    @media (orientation: landscape) {
-      .recipe-content {
-        flex-direction: row;
-      }
-      .recipe-box {
-        width: 50%;
-      }
-    }
-
     .recipe-box h3 {
       margin-bottom: 0.5rem;
     }
@@ -169,6 +166,19 @@
 
     .recipe-box li {
       margin-bottom: 0.5rem;
+    }
+
+    .search-container {
+      margin-bottom: 1rem;
+    }
+
+    #search-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
     }
 
     .toast {
@@ -200,6 +210,17 @@
       background-color: var(--card-bg);
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .share-button {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-color);
+      position: absolute;
+      top: 10px;
+      right: 10px;
     }
 
     .recipe-box ul, .recipe-box ol {
@@ -240,44 +261,43 @@
     }
 
     @media print {
-      .menu, .back-button, .share-button, input[type="checkbox"] {
+      .menu, .search-container, .back-button, .share-button, input[type="checkbox"] {
         display: none;
       }
-      .recipe-box {
-        overflow: visible; /* Fix for print view to show all content */
+      .recipe-box li {
+        padding-left: 1.5rem;
       }
     }
   </style>
 </head>
 
-<body>
-  <div class="container">
-    <nav class="menu collapsed">
-      <button class="menu-button" id="menu-toggle">
-        <i class="fas fa-seedling"></i>
-      </button>
-      <div class="menu-items">
-        <a href="#" class="menu-item"><i class="fas fa-search"></i> Search</a>
-        <a href="#" class="menu-item"><i class="fas fa-plus"></i> Add Recipe</a>
-        <a href="#" class="menu-item"><i class="fas fa-print"></i> Print</a>
-        <a href="#" class="menu-item"><i class="fas fa-flag"></i> Flag Recipe</a>
-        <a href="#" class="menu-item share-button"><i class="fas fa-share-alt"></i> Share</a>
-      </div>
-    </nav>
-    <main class="recipe-card">
-      <div class="recipe-header">
-        <button class="back-button" style="display: none;"><i class="fas fa-arrow-left"></i></button>
-        <h1>Loading...</h1>
-        <h2></h2>
-      </div>
-      <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search recipes...">
-      </div>
-      <div class="recipe-content"></div>
-    </main>
-  </div>
-  <div class="toast">Link copied to clipboard!</div>
-  
+  <body>
+    <div class="container">
+      <nav class="menu collapsed">
+        <button class="menu-button" id="menu-toggle">
+          <i class="fas fa-seedling"></i>
+        </button>
+        <div class="menu-items">
+          <a href="#" class="menu-item"><i class="fas fa-search"></i> Search</a>
+          <a href="#" class="menu-item"><i class="fas fa-plus"></i> Add Recipe</a>
+          <a href="#" class="menu-item"><i class="fas fa-print"></i> Print</a>
+          <a href="#" class="menu-item"><i class="fas fa-flag"></i> Flag Recipe</a>
+        </div>
+      </nav>
+      <main class="recipe-card">
+        <div class="recipe-header">
+          <button class="back-button" style="display: none;"><i class="fas fa-arrow-left"></i></button>
+          <h1>Loading...</h1>
+          <h2></h2>
+          <button class="share-button" style="display: none;"><i class="fas fa-share-alt"></i></button>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-input" placeholder="Search recipes...">
+        </div>
+        <div class="recipe-content"></div>
+      </main>
+    </div>
+    <div class="toast">Link copied to clipboard!</div>
     <script>
 const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
 
