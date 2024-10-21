@@ -72,11 +72,12 @@
     }
 
     .flower-button {
-      background-color: var(--accent-color);
+      /* background-color: var(--accent-color); */
+      background-color: transparent;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -86,7 +87,8 @@
     }
 
     .flower-button i {
-      color: white;
+      color: var(--text-color);
+
     }
 
     .flower-button:hover {
@@ -133,11 +135,12 @@
       position: absolute;
       top: 1rem;
       left: 1rem;
-      background-color: var(--accent-color);
+      /* background-color: var(--accent-color); */
+      background-color: transparent;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -147,7 +150,7 @@
     }
 
     .back-button i {
-      color: white;
+      color: var(--text-color);
     }
 
     /* Hollow Text Style */
@@ -190,7 +193,7 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    /* Categories List Styles */
+    /* Categories List    Styles */
     .categories-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -231,53 +234,29 @@
 
     /* Recipe Content Styles */
     .recipe-content {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      margin-top: 2rem;
-      height: calc(100% - 200px);
-    }
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  height: calc(100vh - 300px);
+  overflow: hidden;
+}
+
+.recipe-section {
+  padding: 1rem;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  max-height: 100%;
+}
 
     @media (min-width: 768px) {
       .recipe-content {
         grid-template-columns: 1fr 1fr;
       }
     }
-    
-    /* Update the recipe-box styling */
-.recipe-box {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  max-height: calc(100vh - 250px); /* This ensures boxes don't overflow the card */
-  scrollbar-width: thin;
-}
-
-/* Add styling for the list items/buttons */
-.list-item {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  color: var(--text-color);
-  font-size: 1rem;
-}
-
-.list-item:hover {
-  text-decoration: underline;
-}
 
 
-
-    .recipe-section {
-      padding: 1rem;
-      overflow-y: auto;
-      max-height: 100%;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-    }
 
     .recipe-section h3 {
       margin-bottom: 1rem;
