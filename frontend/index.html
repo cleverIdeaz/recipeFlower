@@ -612,8 +612,8 @@
         currentRecipe = recipe;
         pageTitle.textContent = recipe.RecipeName;
         pageSubtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
-        // Remove this line to keep the search input visible
-        // searchInput.style.display = 'none';
+        backButton.style.display = 'none'; // Hide back button on recipe view
+        searchInput.style.display = 'none';
 
         mainContent.innerHTML = `
             <div class="recipe-content">
