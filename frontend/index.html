@@ -10,24 +10,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #f4f4f4;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #dddddd;
-      --accent-color: #4a90e2;
-      --hover-color: #357abd;
-    }
+  --bg-color: #f4f4f4;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --border-color: #dddddd;
+  --accent-color: #4a90e2;
+  --hover-color: #357abd;
+  --margin-size: max(1rem, min(3vw, 3rem));
+  --card-width: min(90vw, calc((100vh - (2 * var(--margin-size))) * 0.7));
+  --card-height: calc(var(--card-width) * 1.4);
+}
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-color: #121212;
-        --card-bg: #1e1e1e;
-        --text-color: #ffffff;
-        --border-color: #333333;
-        --accent-color: #64b5f6;
-        --hover-color: #42a5f5;
-      }
-    }
+@media (orientation: landscape) {
+  :root {
+    --card-height: min(90vh, calc(100vw - (2 * var(--margin-size))) * 0.7);
+    --card-width: calc(var(--card-height) / 1.4);
+  }
+}
 
     * {
       box-sizing: border-box;
@@ -47,11 +46,11 @@
     }
 
     .container {
-      position: relative;
-      max-width: 1200px;
-      width: 100%;
-      min-height: 90vh;
-    }
+  width: var(--card-width);
+  height: var(--card-height);
+  position: relative;
+  perspective: 2000px;
+}
 
     .recipe-card {
       background-color: var(--card-bg);
@@ -450,6 +449,13 @@
         }
         flowerMenu.classList.remove('active');
     }
+    // <!-- Search Modal -->
+<div class="search-modal">
+  <div class="search-content">
+    <input type="text" class="search-input" placeholder="Search recipes...">
+    <div class="search-results"></div>
+  </div>
+</div>
 
     // Flower Menu Toggle
     function toggleFlowerMenu() {
