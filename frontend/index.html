@@ -676,6 +676,41 @@
         updateURL();
     }
 
+    function showRecipeFromPreview(recipeName, category, subcategory) {
+    currentCategory = category;
+    currentSubcategory = subcategory;
+    showRecipe(recipeName);
+}
+
+function handleMenuAction(action) {
+    switch (action) {
+        case 'Home':
+            showCategories();
+            break;
+        case 'Search':
+            searchInput.focus();
+            break;
+        case 'Add Recipe':
+            // TODO: Implement recipe form
+            break;
+        case 'Full Screen':
+            toggleFullScreen();
+            break;
+        case 'Print':
+            window.print();
+            break;
+        case 'Flag Recipe':
+            handleFlagRecipe();
+            break;
+        case 'Share':
+            handleShare();
+            break;
+        case 'Back':
+            handleBack();
+            break;
+    }
+    flowerMenu.classList.remove('active');
+}
     function showRecipe(recipeName) {
         currentRecipe = recipeData[currentCategory][currentSubcategory]
             .find(r => r['Recipe Name'] === recipeName);
