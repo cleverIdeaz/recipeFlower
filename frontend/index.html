@@ -1,3 +1,5 @@
+<!-- this version is great, contains all proper naviagtion , but ther are some fatal flaws. - in the flower menu, the search button does not do anything, lets also add a home button to the top of the flower menu, the home button will take us back to the top level page that the app loads with currently.  lets also make sure the flower menu button and the back arrow button are white.   on that note of the back arrow button, lets hide that when we get to the recipe  cards, themself. and instead.   one    other big issue is that the ingredients and instructions expand the whole recipe card beyond our intended fit to the screen no scroll desire.  the ingredients and instructions divs should be independendtly scrollable , but we should never be able to scroll the whole page and the margins should always be even around the whole recipe card.-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,23 +12,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-  --bg-color: #f4f4f4;
-  --card-bg: #ffffff;
-  --text-color: #333333;
-  --border-color: #dddddd;
-  --accent-color: #4a90e2;
-  --hover-color: #357abd;
-  --margin-size: max(1rem, min(3vw, 3rem));
-  --card-width: min(90vw, calc((100vh - (2 * var(--margin-size))) * 0.7));
-  --card-height: calc(var(--card-width) * 1.4);
-}
+      --bg-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-color: #dddddd;
+      --accent-color: #4a90e2;
+      --hover-color: #357abd;
+    }
 
-@media (orientation: landscape) {
-  :root {
-    --card-height: min(90vh, calc(100vw - (2 * var(--margin-size))) * 0.7);
-    --card-width: calc(var(--card-height) / 1.4);
-  }
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #ffffff;
+        --border-color: #333333;
+        --accent-color: #64b5f6;
+        --hover-color: #42a5f5;
+      }
+    }
 
     * {
       box-sizing: border-box;
@@ -46,11 +49,11 @@
     }
 
     .container {
-  width: var(--card-width);
-  height: var(--card-height);
-  position: relative;
-  perspective: 2000px;
-}
+      position: relative;
+      max-width: 1200px;
+      width: 100%;
+      min-height: 90vh;
+    }
 
     .recipe-card {
       background-color: var(--card-bg);
@@ -58,8 +61,7 @@
       padding: 2rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       position: relative;
-      height: 90vh;
-      overflow: scroll;
+      min-height: 90vh;
     }
 
     /* Flower Menu Styles */
@@ -71,23 +73,17 @@
     }
 
     .flower-button {
-      /* background-color: var(--accent-color); */
-      background-color: transparent;
+      background-color: var(--card-bg);
       border: none;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease;
-    }
-
-    .flower-button i {
-      color: var(--text-color);
-
     }
 
     .flower-button:hover {
@@ -117,7 +113,6 @@
       text-decoration: none;
       border-radius: 5px;
       transition: background-color 0.2s;
-      cursor: pointer;
     }
 
     .menu-item:hover {
@@ -134,22 +129,17 @@
       position: absolute;
       top: 1rem;
       left: 1rem;
-      /* background-color: var(--accent-color); */
-      background-color: transparent;
+      background-color: var(--card-bg);
       border: none;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       z-index: 90;
-    }
-
-    .back-button i {
-      color: var(--text-color);
     }
 
     /* Hollow Text Style */
@@ -192,7 +182,7 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    /* Categories List    Styles */
+    /* Categories List Styles */
     .categories-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -233,21 +223,11 @@
 
     /* Recipe Content Styles */
     .recipe-content {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-top: 2rem;
-  height: calc(100vh - 300px);
-  overflow: scroll;
-}
-
-.recipe-section {
-  padding: 1rem;
-  overflow-y: auto;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  max-height: 100%;
-}
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
 
     @media (min-width: 768px) {
       .recipe-content {
@@ -255,14 +235,12 @@
       }
     }
 
-
+    .recipe-section {
+      padding: 1rem;
+    }
 
     .recipe-section h3 {
       margin-bottom: 1rem;
-      position: sticky;
-      top: 0;
-      background-color: var(--card-bg);
-      padding: 0.5rem 0;
     }
 
     .recipe-section ul,
@@ -272,25 +250,6 @@
 
     .recipe-section li {
       margin-bottom: 0.5rem;
-    }
-
-    /* Scrollbar Styles */
-    .recipe-section::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .recipe-section::-webkit-scrollbar-track {
-      background: var(--bg-color);
-      border-radius: 4px;
-    }
-
-    .recipe-section::-webkit-scrollbar-thumb {
-      background: var(--accent-color);
-      border-radius: 4px;
-    }
-
-    .recipe-section::-webkit-scrollbar-thumb:hover {
-      background: var(--hover-color);
     }
   </style>
 </head>
@@ -303,8 +262,7 @@
           <i class="fas fa-seedling"></i>
         </button>
         <div class="flower-menu-items">
-          <a href="#" class="menu-item" id="homeButton"><i class="fas fa-home"></i> Home</a>
-          <a href="#" class="menu-item" id="searchButton"><i class="fas fa-search"></i> Search</a>
+          <a href="#" class="menu-item"><i class="fas fa-search"></i> Search</a>
           <a href="#" class="menu-item"><i class="fas fa-plus"></i> Add Recipe</a>
           <a href="#" class="menu-item"><i class="fas fa-print"></i> Print</a>
           <a href="#" class="menu-item"><i class="fas fa-flag"></i> Flag Recipe</a>
@@ -339,7 +297,8 @@
   <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
 
-  <script>
+<!-- // Replace the entire script section with this: -->
+   <script>
     const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
     let recipeData = {};
     let currentCategory = null;
@@ -355,8 +314,6 @@
     const pageSubtitle = document.getElementById('pageSubtitle');
     const mainContent = document.getElementById('mainContent');
     const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    const homeButton = document.getElementById('homeButton');
     const recipePreview = document.getElementById('recipePreview');
     const toast = document.getElementById('toast');
 
@@ -402,16 +359,6 @@
         flowerButton.addEventListener('click', toggleFlowerMenu);
         backButton.addEventListener('click', handleBack);
         searchInput.addEventListener('input', handleSearch);
-        homeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            showCategories();
-            flowerMenu.classList.remove('active');
-        });
-        searchButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            searchInput.focus();
-            flowerMenu.classList.remove('active');
-        });
         
         // Close flower menu when clicking outside
         document.addEventListener('click', (e) => {
@@ -422,18 +369,19 @@
 
         // Setup menu item listeners
         document.querySelectorAll('.menu-item').forEach(item => {
-            if (!item.id) { // Skip home and search buttons as they have their own listeners
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const action = e.target.textContent.trim();
-                    handleMenuAction(action);
-                });
-            }
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = e.target.textContent.trim();
+                handleMenuAction(action);
+            });
         });
     }
 
     function handleMenuAction(action) {
         switch (action) {
+            case 'Search':
+                searchInput.focus();
+                break;
             case 'Add Recipe':
                 window.location.href = 'add-recipe.html';
                 break;
@@ -449,13 +397,6 @@
         }
         flowerMenu.classList.remove('active');
     }
-    // <!-- Search Modal -->
-<div class="search-modal">
-  <div class="search-content">
-    <input type="text" class="search-input" placeholder="Search recipes...">
-    <div class="search-results"></div>
-  </div>
-</div>
 
     // Flower Menu Toggle
     function toggleFlowerMenu() {
@@ -477,7 +418,6 @@
         updateURL();
     }
 
-    
     // URL Management
     function updateURL() {
         const params = new URLSearchParams();
@@ -618,7 +558,7 @@
         currentRecipe = recipe;
         pageTitle.textContent = recipe.RecipeName;
         pageSubtitle.textContent = `${currentCategory} | ${currentSubcategory}`;
-        backButton.style.display = 'none'; // Hide back button on recipe view
+        backButton.style.display = 'block';
         searchInput.style.display = 'none';
 
         mainContent.innerHTML = `
@@ -730,4 +670,5 @@
 </script>
 
 </body>
+
 </html>
