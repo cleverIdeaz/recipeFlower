@@ -22,9 +22,11 @@
 
     @media (orientation: landscape) {
       :root {
-        --card-height: min(90vh, calc(100vw - 2 * var(--margin-size)) * 0.7);
-        --card-width: calc(var(--card-height) / 1.4);
-      }
+  --margin-size: max(1rem, min(3vw, 3rem));
+  --card-width: min(90vw, calc((100vh - (2 * var(--margin-size))) * 0.7));
+  --card-height: calc(var(--card-width) * 1.4);
+}
+
     }
 
     @media (prefers-color-scheme: dark) {
