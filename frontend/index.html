@@ -15,18 +15,9 @@
       --border-color: #dddddd;
       --accent-color: #4a90e2;
       --hover-color: #357abd;
-      --margin-size: clamp(1rem, 3vw, 3rem);
-      --card-width: min(90vw, calc(100vh - 2 * var(--margin-size)) * 0.7);
-      --card-height: calc(var(--card-width) * 1.4);
-    }
-
-    @media (orientation: landscape) {
-      :root {
-  --margin-size: max(1rem, min(3vw, 3rem));
-  --card-width: min(90vw, calc((100vh - (2 * var(--margin-size))) * 0.7));
-  --card-height: calc(var(--card-width) * 1.4);
-}
-
+      --card-width: min(90vw, 600px);
+      --card-height: calc(var(--card-width) * 1.6);
+      --card-padding: clamp(1rem, 2vw, 2rem);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -55,217 +46,57 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: var(--margin-size);
+      padding: var(--card-padding);
       overflow: hidden;
     }
 
     .container {
+      position: relative;
       width: var(--card-width);
       height: var(--card-height);
-      position: relative;
-      perspective: 2000px;
+      perspective: 1000px;
     }
 
     .recipe-card {
+      position: relative;
       width: 100%;
       height: 100%;
-      position: relative;
       background-color: var(--card-bg);
       border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       transform-style: preserve-3d;
       transition: transform 0.6s;
-      overflow: hidden;
     }
 
-    .card-content {
-      padding: calc(var(--margin-size) * 0.8);
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      position: relative;
+    /* Card flip animation for form */
+    .container.flipped .recipe-card {
+      transform: rotateY(180deg);
     }
 
-    /* Header Section */
-    .recipe-header {
-      flex: 0 0 auto;
-      margin-bottom: calc(var(--margin-size) * 0.5);
-      padding-top: calc(var(--margin-size) * 0.5);
-    }
-
-    h1, h2 {
-      text-align: center;
-      color: transparent;
-      -webkit-text-stroke: 1px var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin: 0;
-    }
-
-    h1 {
-      font-size: clamp(1.5rem, 4vmin, 2.5rem);
-      margin-bottom: 0.25rem;
-    }
-
-    h2 {
-      font-size: clamp(1rem, 3vmin, 1.5rem);
-      -webkit-text-stroke-width: 0.5px;
-    }
-
-    /* Search Bar */
-    .search-container {
-      flex: 0 0 auto;
-      margin-bottom: calc(var(--margin-size) * 0.5);
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      font-family: inherit;
-      font-size: 1rem;
-    }
-
-    /* Categories Grid */
-    .categories-container {
-      flex: 1;
-      overflow: hidden;
-      margin-bottom: calc(var(--margin-size) * 0.5);
-    }
-
-    .categories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 0.75rem;
-      padding-right: 0.5rem;
-      height: 100%;
-      overflow-y: auto;
-    }
-
-    .category-item {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.75rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-align: center;
-    }
-
-    .category-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Preview Stack */
-    .preview-stack {
-      flex: 0 0 25%;
-      position: relative;
-      perspective: 1000px;
-      margin-top: auto;
-    }
-
-    .preview-card {
-      position: absolute;
-      width: 90%;
-      height: 90%;
-      left: 5%;
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      padding: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    .preview-card:nth-child(1) {
-      transform: translateZ(20px);
-      z-index: 3;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .preview-card:nth-child(2) {
-      transform: translateY(10px) translateZ(0);
-      z-index: 2;
-      filter: brightness(0.95);
-    }
-
-    .preview-card:nth-child(3) {
-      transform: translateY(20px) translateZ(-20px);
-      z-index: 1;
-      filter: brightness(0.9);
-    }
-
-    .preview-nav {
+    .card-front, .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 4;
-    }
-
-    .preview-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 40px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      pointer-events: auto;
-      transition: transform 0.2s;
-      z-index: 5;
-    }
-
-    .preview-arrow:hover {
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .preview-arrow.left {
-      left: -20px;
-    }
-
-    .preview-arrow.right {
-      right: -20px;
-    }
-
-    .preview-card-content {
-      height: 100%;
+      backface-visibility: hidden;
+      padding: var(--card-padding);
       display: flex;
       flex-direction: column;
-    }
-
-    .preview-card-content h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .preview-card-content p {
-      font-size: 0.8rem;
-      color: var(--text-color);
-      opacity: 0.8;
+    .card-back {
+      transform: rotateY(180deg);
+      background-color: var(--card-bg);
+      border-radius: 15px;
     }
 
     /* Flower Menu */
     .flower-menu {
       position: absolute;
-      top: calc(var(--margin-size) * 0.8);
-      right: calc(var(--margin-size) * 0.8);
+      top: var(--card-padding);
+      right: var(--card-padding);
       z-index: 100;
     }
 
@@ -312,6 +143,7 @@
       border-radius: 5px;
       transition: background-color 0.2s;
       cursor: pointer;
+      font-size: 0.9rem;
     }
 
     .menu-item i {
@@ -324,14 +156,57 @@
       background-color: var(--border-color);
     }
 
+    /* Header Section */
+    .recipe-header {
+      text-align: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    h1, h2 {
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text-color);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      -webkit-text-stroke: 0.5px var(--text-color);
+    }
+
+    /* Search Bar */
+    .search-container {
+      margin: 1rem 0;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
     /* Recipe Content */
     .recipe-content {
+      flex: 1;
       display: grid;
+      gap: 1rem;
+      overflow: hidden;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 1rem;
-      height: 100%;
-      overflow: hidden;
     }
 
     @media (min-width: 768px) and (orientation: landscape) {
@@ -346,6 +221,7 @@
       border-radius: 8px;
       padding: 1rem;
       overflow-y: auto;
+      position: relative;
     }
 
     .recipe-section h3 {
@@ -357,7 +233,77 @@
       z-index: 1;
     }
 
-    /* Checkbox Lists */
+    /* Preview Cards Stack */
+    .preview-stack {
+      position: relative;
+      height: 200px;
+      margin: 2rem 0;
+    }
+
+    .preview-card {
+      position: absolute;
+      width: 80%;
+      height: 150px;
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      transform-origin: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      left: 10%;
+    }
+
+    .preview-card:nth-child(1) { transform: translateY(0) scale(1); z-index: 3; }
+    .preview-card:nth-child(2) { transform: translateY(-10px) scale(0.95); z-index: 2; }
+    .preview-card:nth-child(3) { transform: translateY(-20px) scale(0.9); z-index: 1; }
+
+    /* Form Styles */
+    .recipe-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-input {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-family: inherit;
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-button {
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--accent-color);
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .form-button:hover {
+      background-color: var(--hover-color);
+    }
+
+    /* Checkbox Styles */
     .checkbox-list {
       list-style: none;
       padding: 0;
@@ -391,24 +337,6 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Scrollbar Styles */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent-color);
     }
 
     /* Print Styles */
@@ -447,7 +375,7 @@
 <body>
   <div class="container">
     <div class="recipe-card">
-      <div class="card-content">
+      <div class="card-front">
         <!-- Flower Menu -->
         <div class="flower-menu">
           <button class="flower-button">
@@ -467,7 +395,7 @@
 
         <!-- Header -->
         <div class="recipe-header">
-          <h1>Categories</h1>
+          <h1>RecipeFlower</h1>
           <h2></h2>
         </div>
 
@@ -476,21 +404,59 @@
           <input type="text" class="search-input" placeholder="Search recipes...">
         </div>
 
-        <!-- Categories Grid -->
-        <div class="categories-container">
-          <div class="categories-grid">
-            <!-- Categories will be dynamically inserted here -->
-          </div>
-        </div>
-
-        <!-- Preview Stack -->
+        <!-- Preview Stack or Recipe Content -->
         <div class="preview-stack">
-          <div class="preview-nav">
-            <button class="preview-arrow left"><i class="fas fa-chevron-left"></i></button>
-            <button class="preview-arrow right"><i class="fas fa-chevron-right"></i></button>
-          </div>
           <!-- Preview cards will be dynamically inserted here -->
         </div>
+
+        <!-- Recipe Content -->
+        <div class="recipe-content">
+          <!-- Recipe sections will be dynamically inserted here -->
+        </div>
+      </div>
+
+      <div class="card-back">
+        <!-- Add Recipe Form -->
+        <form class="recipe-form">
+          <div class="form-group">
+            <label for="recipeName">Recipe Name</label>
+            <input type="text" id="recipeName" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" class="form-input" required>
+              <option value="">Select Category</option>
+              <!-- Categories will be dynamically populated -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="subcategory">Subcategory</label>
+            <select id="subcategory" class="form-input" required>
+              <option value="">Select Subcategory</option>
+              <!-- Subcategories will be dynamically populated -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ingredients">Ingredients (separate with •)</label>
+            <textarea id="ingredients" class="form-input form-textarea" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="instructions">Instructions (separate with •)</label>
+            <textarea id="instructions" class="form-input form-textarea" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="userEmail">Your Email (for recipe link)</label>
+            <input type="email" id="userEmail" class="form-input">
+          </div>
+
+          <button type="submit" class="form-button">Submit Recipe</button>
+          <button type="button" class="form-button" onclick="toggleForm()">Cancel</button>
+        </form>
       </div>
     </div>
   </div>
@@ -499,22 +465,23 @@
   <div class="toast"></div>
 
   <script>
+    // Constants and State
     const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
     let recipeData = {};
     let currentCategory = null;
     let currentSubcategory = null;
     let currentRecipe = null;
-    let previewIndex = 0;
-    let previewRecipes = [];
+    let previewInterval = null;
 
     // DOM Elements
     const container = document.querySelector('.container');
     const flowerMenu = document.querySelector('.flower-menu');
     const flowerButton = document.querySelector('.flower-button');
     const searchInput = document.querySelector('.search-input');
-    const categoriesGrid = document.querySelector('.categories-grid');
+    const recipeContent = document.querySelector('.recipe-content');
     const previewStack = document.querySelector('.preview-stack');
     const toast = document.querySelector('.toast');
+    const form = document.querySelector('.recipe-form');
 
     // Initialize
     async function init() {
@@ -525,9 +492,9 @@
             
             organizeData(data);
             setupEventListeners();
+            startPreviewRotation();
             handleUrlParams();
             showCategories();
-            startPreviewRotation();
         } catch (error) {
             console.error('Failed to initialize:', error);
             showToast('Failed to load recipes', 'error');
@@ -572,56 +539,50 @@
         // Search
         searchInput.addEventListener('input', debounce(handleSearch, 300));
 
-        // Preview Navigation
-        document.querySelector('.preview-arrow.left').addEventListener('click', () => {
-            navigatePreview(-1);
-        });
-        document.querySelector('.preview-arrow.right').addEventListener('click', () => {
-            navigatePreview(1);
-        });
+        // Form
+        form.addEventListener('submit', handleFormSubmit);
     }
 
-    // Preview Stack Management
-    function startPreviewRotation() {
-        // Get all recipes for preview
-        previewRecipes = [];
-        Object.values(recipeData).forEach(categories => {
-            Object.values(categories).forEach(recipes => {
-                previewRecipes.push(...recipes);
-            });
-        });
-
-        shuffleArray(previewRecipes);
-        updatePreviewStack();
-
-        // Auto rotate every 10 seconds
-        setInterval(() => {
-            if (!document.hidden) {
-                navigatePreview(1);
-            }
-        }, 10000);
-    }
-
-    function updatePreviewStack() {
-        const cards = [];
-        for (let i = 0; i < 3; i++) {
-            const idx = (previewIndex + i) % previewRecipes.length;
-            const recipe = previewRecipes[idx];
-            cards.push(`
-                <div class="preview-card" onclick="showRecipeFromPreview('${recipe['Recipe Name']}', '${recipe.Category}', '${recipe.Subcategory}')">
-                    <div class="preview-card-content">
-                        <h3>${recipe['Recipe Name']}</h3>
-                        <p>${recipe.Category} | ${recipe.Subcategory}</p>
-                    </div>
-                </div>
-            `);
+    // Menu Actions
+    function handleMenuAction(action) {
+        switch (action) {
+            case 'Home':
+                showCategories();
+                break;
+            case 'Search':
+                searchInput.focus();
+                break;
+            case 'Add Recipe':
+                toggleForm();
+                break;
+            case 'Full Screen':
+                toggleFullScreen();
+                break;
+            case 'Print':
+                window.print();
+                break;
+            case 'Flag Recipe':
+                handleFlagRecipe();
+                break;
+            case 'Share':
+                handleShare();
+                break;
+            case 'Back':
+                handleBack();
+                break;
         }
-        previewStack.innerHTML = cards.join('') + previewStack.querySelector('.preview-nav').outerHTML;
+        flowerMenu.classList.remove('active');
     }
 
-    function navigatePreview(direction) {
-        previewIndex = (previewIndex + direction + previewRecipes.length) % previewRecipes.length;
-        updatePreviewStack();
+    // Navigation
+    function handleBack() {
+        if (currentRecipe) {
+            showRecipes(currentSubcategory);
+        } else if (currentSubcategory) {
+            showSubcategories(currentCategory);
+        } else if (currentCategory) {
+            showCategories();
+        }
     }
 
     // View Management
@@ -631,15 +592,18 @@
         currentRecipe = null;
         
         updateHeader('Categories');
+        showPreviewStack();
         
-        categoriesGrid.innerHTML = Object.keys(recipeData)
-            .map(category => `
-                <div class="category-item" onclick="showSubcategories('${category}')">
-                    ${category}
-                </div>
-            `).join('');
+        recipeContent.innerHTML = `
+            <div class="recipe-section">
+                ${Object.keys(recipeData).map(category => `
+                    <div class="category-item" onclick="showSubcategories('${category}')">
+                        ${category}
+                    </div>
+                `).join('')}
+            </div>
+        `;
         
-        previewStack.style.display = 'block';
         updateURL();
     }
 
@@ -648,15 +612,18 @@
         currentSubcategory = null;
         
         updateHeader(category, 'Subcategories');
+        hidePreviewStack();
         
-        categoriesGrid.innerHTML = Object.keys(recipeData[category])
-            .map(subcategory => `
-                <div class="category-item" onclick="showRecipes('${subcategory}')">
-                    ${subcategory}
-                </div>
-            `).join('');
+        recipeContent.innerHTML = `
+            <div class="recipe-section">
+                ${Object.keys(recipeData[category]).map(subcategory => `
+                    <div class="category-item" onclick="showRecipes('${subcategory}')">
+                        ${subcategory}
+                    </div>
+                `).join('')}
+            </div>
+        `;
         
-        previewStack.style.display = 'none';
         updateURL();
     }
 
@@ -665,52 +632,19 @@
         
         updateHeader(subcategory, currentCategory);
         
-        categoriesGrid.innerHTML = recipeData[currentCategory][subcategory]
-            .map(recipe => `
-                <div class="category-item" onclick="showRecipe('${recipe['Recipe Name']}')">
-                    ${recipe['Recipe Name']}
-                </div>
-            `).join('');
+        recipeContent.innerHTML = `
+            <div class="recipe-section">
+                ${recipeData[currentCategory][subcategory].map(recipe => `
+                    <div class="category-item" onclick="showRecipe('${recipe['Recipe Name']}')">
+                        ${recipe['Recipe Name']}
+                    </div>
+                `).join('')}
+            </div>
+        `;
         
-        previewStack.style.display = 'none';
         updateURL();
     }
 
-    function showRecipeFromPreview(recipeName, category, subcategory) {
-    currentCategory = category;
-    currentSubcategory = subcategory;
-    showRecipe(recipeName);
-}
-
-function handleMenuAction(action) {
-    switch (action) {
-        case 'Home':
-            showCategories();
-            break;
-        case 'Search':
-            searchInput.focus();
-            break;
-        case 'Add Recipe':
-            // TODO: Implement recipe form
-            break;
-        case 'Full Screen':
-            toggleFullScreen();
-            break;
-        case 'Print':
-            window.print();
-            break;
-        case 'Flag Recipe':
-            handleFlagRecipe();
-            break;
-        case 'Share':
-            handleShare();
-            break;
-        case 'Back':
-            handleBack();
-            break;
-    }
-    flowerMenu.classList.remove('active');
-}
     function showRecipe(recipeName) {
         currentRecipe = recipeData[currentCategory][currentSubcategory]
             .find(r => r['Recipe Name'] === recipeName);
@@ -719,67 +653,113 @@ function handleMenuAction(action) {
         
         updateHeader(currentRecipe['Recipe Name'], `${currentCategory} | ${currentSubcategory}`);
         
-        document.querySelector('.card-content').innerHTML = `
-            <div class="recipe-content">
-                <div class="recipe-section">
-                    <h3>Ingredients</h3>
-                    <ul class="checkbox-list">
-                        ${currentRecipe.Ingredients.split('•')
-                            .filter(i => i.trim())
-                            .map((ingredient, idx) => `
-                                <li class="checkbox-item">
-                                    <input type="checkbox" id="ingredient-${idx}">
-                                    <label for="ingredient-${idx}">${ingredient.trim()}</label>
-                                </li>
-                            `).join('')}
-                    </ul>
-                </div>
-                <div class="recipe-section">
-                    <h3>Instructions</h3>
-                    <ol class="checkbox-list">
-                        ${currentRecipe.Instructions.split('•')
-                            .filter(i => i.trim())
-                            .map((instruction, idx) => `
-                                <li class="checkbox-item">
-                                    <input type="checkbox" id="instruction-${idx}">
-                                    <label for="instruction-${idx}">${instruction.trim()}</label>
-                                </li>
-                            `).join('')}
-                    </ol>
-                </div>
+        recipeContent.innerHTML = `
+            <div class="recipe-section">
+                <h3>Ingredients</h3>
+                <ul class="checkbox-list">
+                    ${currentRecipe.Ingredients.split('•')
+                        .filter(i => i.trim())
+                        .map((ingredient, idx) => `
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="ingredient-${idx}">
+                                <label for="ingredient-${idx}">${ingredient.trim()}</label>
+                            </li>
+                        `).join('')}
+                </ul>
+            </div>
+            <div class="recipe-section">
+                <h3>Instructions</h3>
+                <ol class="checkbox-list">
+                    ${currentRecipe.Instructions.split('•')
+                        .filter(i => i.trim())
+                        .map((instruction, idx) => `
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="instruction-${idx}">
+                                <label for="instruction-${idx}">${instruction.trim()}</label>
+                            </li>
+                        `).join('')}
+                </ol>
             </div>
         `;
         
         updateURL();
     }
 
-    // Helper Functions
+    // Preview Stack
+    function startPreviewRotation() {
+        if (previewInterval) clearInterval(previewInterval);
+        
+        function updatePreview() {
+            const allRecipes = [];
+            Object.values(recipeData).forEach(categories => {
+                Object.values(categories).forEach(recipes => {
+                    allRecipes.push(...recipes);
+                });
+            });
+            
+            const randomRecipes = [];
+            for (let i = 0; i < 3; i++) {
+                const idx = Math.floor(Math.random() * allRecipes.length);
+                randomRecipes.push(allRecipes[idx]);
+            }
+            
+            previewStack.innerHTML = randomRecipes.map((recipe, idx) => `
+                <div class="preview-card" onclick="showRecipeFromPreview('${recipe['Recipe Name']}', '${recipe.Category}', '${recipe.Subcategory}')">
+                    <h3>${recipe['Recipe Name']}</h3>
+                    <p>${recipe.Category} | ${recipe.Subcategory}</p>
+                </div>
+            `).join('');
+        }
+        
+        updatePreview();
+        previewInterval = setInterval(updatePreview, 10000);
+    }
+
+    // Form Handling
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        const formData = {
+            'Recipe Name': form.recipeName.value,
+            'Category': form.category.value,
+            'Subcategory': form.subcategory.value,
+            'Ingredients': form.ingredients.value,
+            'Instructions': form.instructions.value,
+            'userEmail': form.userEmail.value
+        };
+        
+        try {
+            const response = await fetch('/api/addRecipe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            if (!response.ok) throw new Error('Failed to submit recipe');
+            
+            const result = await response.json();
+            showToast('Recipe submitted successfully!');
+            form.reset();
+            toggleForm();
+            
+            // Email recipe link to user
+            if (formData.userEmail) {
+                const recipeUrl = `${window.location.origin}?category=${encodeURIComponent(formData.Category)}&subcategory=${encodeURIComponent(formData.Subcategory)}&recipe=${encodeURIComponent(formData['Recipe Name'])}`;
+                // Here you would typically call your email service
+                console.log('Recipe URL:', recipeUrl);
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showToast('Failed to submit recipe', 'error');
+        }
+    }
+
+    // Utility Functions
     function updateHeader(title, subtitle = '') {
         document.querySelector('h1').textContent = title;
         document.querySelector('h2').textContent = subtitle;
     }
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // URL Management
     function updateURL() {
         const params = new URLSearchParams();
         if (currentCategory) params.set('category', currentCategory);
@@ -806,8 +786,145 @@ function handleMenuAction(action) {
         }
     }
 
+    function showToast(message, type = 'success') {
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    function toggleForm() {
+        container.classList.toggle('flipped');
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+    }
+
+    function handleSearch(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        
+        if (!searchTerm) {
+            showCategories();
+            return;
+        }
+
+        const results = [];
+        Object.entries(recipeData).forEach(([category, subcategories]) => {
+            Object.entries(subcategories).forEach(([subcategory, recipes]) => {
+                recipes.forEach(recipe => {
+                    if (
+                        recipe['Recipe Name'].toLowerCase().includes(searchTerm) ||
+                        recipe.Ingredients.toLowerCase().includes(searchTerm) ||
+                        recipe.Instructions.toLowerCase().includes(searchTerm)
+                    ) {
+                        results.push({...recipe, category, subcategory});
+                    }
+                });
+            });
+        });
+
+        hidePreviewStack();
+        updateHeader('Search Results');
+        
+        recipeContent.innerHTML = `
+            <div class="recipe-section">
+                ${results.length ? results.map(recipe => `
+                    <div class="category-item" onclick="showRecipeFromSearch('${recipe['Recipe Name']}', '${recipe.category}', '${recipe.subcategory}')">
+                        <strong>${recipe['Recipe Name']}</strong>
+                        <div><small>${recipe.category} | ${recipe.subcategory}</small></div>
+                    </div>
+                `).join('') : '<div class="no-results">No recipes found</div>'}
+            </div>
+        `;
+    }
+
+    function showRecipeFromSearch(recipeName, category, subcategory) {
+        currentCategory = category;
+        currentSubcategory = subcategory;
+        showRecipe(recipeName);
+    }
+
+    function showRecipeFromPreview(recipeName, category, subcategory) {
+        currentCategory = category;
+        currentSubcategory = subcategory;
+        showRecipe(recipeName);
+        if (previewInterval) clearInterval(previewInterval);
+    }
+
+    function hidePreviewStack() {
+        previewStack.style.display = 'none';
+    }
+
+    function showPreviewStack() {
+        previewStack.style.display = 'block';
+        startPreviewRotation();
+    }
+
+    // Debounce utility for search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Handle sharing
+    async function handleShare() {
+        const url = window.location.href;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: document.title,
+                    url: url
+                });
+            } catch (err) {
+                console.error('Share failed:', err);
+                fallbackShare(url);
+            }
+        } else {
+            fallbackShare(url);
+        }
+    }
+
+    function fallbackShare(url) {
+        navigator.clipboard.writeText(url)
+            .then(() => showToast('Link copied to clipboard!'))
+            .catch(() => showToast('Failed to copy link', 'error'));
+    }
+
+    function handleFlagRecipe() {
+        if (!currentRecipe) return;
+        
+        const reason = prompt('Please enter the reason for flagging this recipe:');
+        if (reason) {
+            // Here you would typically send this to your backend
+            showToast('Recipe has been flagged for review');
+            console.log('Recipe flagged:', currentRecipe['Recipe Name'], 'Reason:', reason);
+        }
+    }
+
     // Initialize the application
     init();
-  </script>
+</script>
 </body>
 </html>
