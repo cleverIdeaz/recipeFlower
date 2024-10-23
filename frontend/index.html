@@ -1,3 +1,5 @@
+<!-- v1 -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,31 +18,20 @@
       --border-color: #dddddd;
       --accent-color: #4a90e2;
       --hover-color: #357abd;
-      /* --margin-size: max(1rem, min(3vw, 3rem)); */
-/* original above backup */
-      --margin-size: 1vh ;
+      --margin-size: max(1rem, min(3vw, 3rem));
+  --available-height: calc(100vh - (2 * var(--margin-size)));
+  --available-width: calc(100vw - (2 * var(--margin-size)));
+  --card-width: min(var(--available-width), calc(var(--available-height) * 0.7));
+  --card-height: min(var(--available-height), calc(var(--card-width) * 1.4));
+}
 
-      /* Card size calculations */
-      --available-height: calc(100vh - (2 * var(--margin-size)));
-      --available-width: calc(100vw - (2 * var(--margin-size)));
-      --card-width: 90vw;
-      --card-height: 90vh;
-    }
 
-          /* Card size calculations backup*/
-          /* --available-height: calc(100vh - (2 * var(--margin-size)));
-      --available-width: calc(100vw - (2 * var(--margin-size)));
-      --card-width: min(var(--available-width), calc(var(--available-height) * 0.7));
-      --card-height: min(var(--available-height), calc(var(--card-width) * 1.4));
-    } */
-
-    @media (orientation: landscape) {
-      :root {
-        --card-height: min(var(--available-height), calc(var(--available-width) * 0.7));
-        --card-width: calc(var(--card-height) / 1.4);
-      }
-    }
-
+@media (orientation: landscape) {
+  :root {
+    --card-height: min(var(--available-height), calc(var(--available-width) * 0.7));
+    --card-width: calc(var(--card-height) / 1.4);
+  }
+}
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-color: #121212;
@@ -61,25 +52,24 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: var(--margin-size);
-      overflow: hidden;
-    }
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--margin-size);
+  overflow: hidden;
+}
 
     /* Container and Card Base */
     .container {
-      width: var(--card-width);
-      height: var(--card-height);
-      position: relative;
-      perspective: 2000px;
-      
-    }
+  width: var(--card-width);
+  height: var(--card-height);
+  position: relative;
+  perspective: 2000px;
+}
 
     .recipe-card {
       width: 100%;
