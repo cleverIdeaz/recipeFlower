@@ -21,15 +21,16 @@
       --margin-size: max(1rem, min(3vw, 3rem));
   --available-height: calc(100vh - (2 * var(--margin-size)));
   --available-width: calc(100vw - (2 * var(--margin-size)));
-  --card-width: min(var(--available-width), calc(var(--available-height) * 0.7));
+  /* New card size calculations */
+  --card-width: min(var(--available-width), calc(var(--available-height) / 1.4));
   --card-height: min(var(--available-height), calc(var(--card-width) * 1.4));
 }
 
-
 @media (orientation: landscape) {
   :root {
-    --card-height: min(var(--available-height), calc(var(--available-width) * 0.7));
-    --card-width: calc(var(--card-height) / 1.4);
+    /* Adjust for landscape mode */
+    --card-width: min(calc(var(--available-height) / 1.4), var(--available-width));
+    --card-height: calc(var(--card-width) * 1.4);
   }
 }
     @media (prefers-color-scheme: dark) {
