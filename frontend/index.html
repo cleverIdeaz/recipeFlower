@@ -103,12 +103,13 @@ body {
     }
 
     .card-back {
-      transform: rotateY(180deg);
-      background-color: var(--card-bg);
-      border-radius: 15px;
-      padding: var(--margin-size);
-      overflow-y: auto;
-    }
+  transform: rotateY(180deg);
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  padding: var(--margin-size);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Add this for mobile */
+}
 
     .card-content {
       height: 100%;
@@ -157,17 +158,18 @@ body {
     .categories-container {
       flex: 1;
       overflow: hidden;
-      margin: 1rem 0;
+      /* margin: 1rem 0; */
     }
 
     .categories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 0.75rem;
-      height: 100%;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-    }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  -webkit-overflow-scrolling: touch; /* Add this for mobile */
+}
 
     .category-item {
       background-color: var(--card-bg);
@@ -343,14 +345,14 @@ body {
         grid-template-rows: 1fr;
       }
     }
-
+/* 
     .recipe-section {
       border: 1px solid var(--border-color);
       border-radius: 8px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-    }
+    } */
 
     .recipe-section h3 {
       position: sticky;
@@ -362,11 +364,22 @@ body {
       z-index: 1;
     }
 
-    .recipe-section-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-    }
+    .recipe-section {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Change this */
+}
+
+.recipe-section-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  -webkit-overflow-scrolling: touch; /* Add this for mobile */
+}
+
+
 
     /* Search Modal */
     .search-modal {
@@ -405,9 +418,10 @@ body {
     }
 
     .search-results {
-      overflow-y: auto;
-      max-height: 60vh;
-    }
+  overflow-y: auto;
+  max-height: 60vh;
+  -webkit-overflow-scrolling: touch; /* Add this for mobile */
+}
 
     /* Form Styles */
     .recipe-form {
