@@ -34,10 +34,17 @@
 
 @media (orientation: landscape) {
   :root {
+    --card-height: 90vh;
+    --card-width: 90vw;
+  }
+}
+
+/* @media (orientation: landscape) {
+  :root {
     --card-height: min(var(--available-height), var(--available-width) / 1.4);
     --card-width: min(var(--available-width), var(--card-height) * 1.4);
   }
-}
+} */
 
 body {
   min-height: 100vh;
