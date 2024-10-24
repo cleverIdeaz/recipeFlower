@@ -10,234 +10,223 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Root Variables */
-    :root {
-      --bg-color: #f4f4f4;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #dddddd;
-      --accent-color: #4a90e2;
-      --hover-color: #357abd;
-
-      --margin-size: max(1rem, min(3vw, 3rem));
-  --available-height: 100vh;
-  --available-width: 100vw;
-  --card-width: 90vw;
-  --card-height: 90vh;
-  
-      /* --margin-size: max(1rem, min(3vw, 3rem));
-  --available-height: calc(100vh - (2 * var(--margin-size)));
-  --available-width: calc(100vw - (2 * var(--margin-size)));
-  --card-width: min(var(--available-width), calc(var(--available-height) / 1.4));
-  --card-height: min(var(--available-height), calc(var(--card-width) * 1.4)); */
+    /* Replace the current CSS root variables section with: */
+:root {
+  --bg-color: #f4f4f4;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --border-color: #dddddd;
+  --accent-color: #4a90e2;
+  --hover-color: #357abd;
+  --margin-size: max(1rem, min(3vw, 3rem));
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-@media (orientation: landscape) {
-  :root {
-    --card-height: 90vh;
-    --card-width: 90vw;
-  }
-}
-
-/* @media (orientation: landscape) {
-  :root {
-    --card-height: min(var(--available-height), var(--available-width) / 1.4);
-    --card-width: min(var(--available-width), var(--card-height) * 1.4);
-  }
-} */
-
+/* Update body styles */
 body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   min-height: 100vh;
+  margin: 0;
+  padding: var(--margin-size);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Update container and recipe-card styles */
+.container {
+  width: 100%;
+  max-width: calc(100vw - 2 * var(--margin-size));
+  min-height: calc(100vh - 2 * var(--margin-size));
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--margin-size);
-  overflow: hidden;
-}
-
-.container {
-  width: var(--card-width);
-  height: var(--card-height);
-  position: relative;
-  perspective: 2000px;
 }
 
 .recipe-card {
   width: 100%;
   height: 100%;
+  min-height: 600px;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: var(--card-shadow);
   position: relative;
-}
-
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-color: #121212;
-        --card-bg: #1e1e1e;
-        --text-color: #ffffff;
-        --border-color: #333333;
-        --accent-color: #64b5f6;
-        --hover-color: #42a5f5;
-      }
-    }
-
-    /* Base Styles */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--margin-size);
   overflow: hidden;
 }
 
-    
-/* Card Flip Animation */
-.container.flipped .recipe-card {
-      transform: rotateY(180deg);
-    }
-
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-back {
-  transform: rotateY(180deg);
-  background-color: var(--card-bg);
-  border-radius: 15px;
-  padding: var(--margin-size);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* Add this for mobile */
+/* Update preview stack styles */
+.preview-stack {
+  position: relative;
+  height: 200px;
+  margin-top: auto;
+  margin-bottom: 1rem;
+  perspective: 2000px;
 }
 
-    .card-content {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: calc(var(--margin-size) * 0.8);
-    }
+.preview-card {
+  position: absolute;
+  width: 90%;
+  height: 80%;
+  left: 5%;
+  top: 10%;
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.4s ease;
+  cursor: pointer;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
 
-    /* Header Section */
-    .recipe-header {
-      flex: 0 0 auto;
-      margin-bottom: 1rem;
-      position: relative;
-      padding-top: calc(var(--margin-size) * 0.5);
-    }
+.preview-card:nth-child(1) {
+  transform: translateZ(0) scale(1);
+  z-index: 3;
+}
 
-    h1, h2 {
-      text-align: center;
-      color: transparent;
-      -webkit-text-stroke: 1px var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin: 0;
-    }
+.preview-card:nth-child(2) {
+  transform: translateY(10px) translateZ(-20px) scale(0.95);
+  z-index: 2;
+  opacity: 0.9;
+}
 
-    h1 {
-      font-size: clamp(1.5rem, 4vmin, 2.5rem);
-      margin-bottom: 0.25rem;
-    }
+.preview-card:nth-child(3) {
+  transform: translateY(20px) translateZ(-40px) scale(0.9);
+  z-index: 1;
+  opacity: 0.8;
+}
 
-    h2 {
-      font-size: clamp(1rem, 3vmin, 1.5rem);
-      -webkit-text-stroke-width: 0.5px;
-    }
+.preview-card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
-    /* Home Content Layout */
-    .home-content {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-    }
+.preview-card-content h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
 
-    /* Categories Section */
-    .categories-container {
-      flex: 1;
-      overflow: hidden;
-      /* margin: 1rem 0; */
-    }
+.preview-card-content p {
+  margin: 0;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
 
-    .categories-grid {
+/* Update categories section */
+.categories-container {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+}
+
+.categories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.75rem;
-  height: 100%;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-  -webkit-overflow-scrolling: touch; /* Add this for mobile */
+  gap: 1rem;
+  padding-bottom: 1rem;
 }
 
-    .category-item {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.75rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-align: center;
-    }
+/* Update recipe content section */
+.recipe-content {
+  height: calc(100% - var(--header-height));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+}
 
-    .category-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
+.recipe-section {
+  height: auto;
+  min-height: 200px;
+}
 
-    /* Preview Stack */
-    .preview-stack {
-      flex: 0 0 25%;
-      position: relative;
-      perspective: 1000px;
-      margin-top: auto;
-      margin-bottom: calc(var(--margin-size) * 0.5);
-    }
+.recipe-section-content {
+  padding: 1rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
-    .preview-card {
-      position: absolute;
-      width: 90%;
-      height: 90%;
-      left: 5%;
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      padding: 1rem;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
+/* Add animation for preview cards */
+@keyframes cardTransition {
+  0% {
+    transform: translateX(0) translateZ(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-100%) translateZ(-50px) scale(0.9);
+    opacity: 0;
+  }
+  51% {
+    transform: translateX(100%) translateZ(-50px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) translateZ(0) scale(1);
+    opacity: 1;
+  }
+}
 
-    .preview-card:nth-child(1) {
-      transform: translateZ(20px);
-      z-index: 3;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
+.preview-card.transitioning {
+  animation: cardTransition 0.4s ease-in-out;
+}
+.preview-card {
+  position: absolute;
+  width: 90%;
+  height: 80%;
+  left: 5%;
+  top: 10%;
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.4s ease;
+  cursor: pointer;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
 
-    .preview-card:nth-child(2) {
-      transform: translateY(10px) translateZ(0);
-      z-index: 2;
-      filter: brightness(0.95);
-    }
+.preview-card:nth-child(1) {
+  transform: translateZ(0) scale(1);
+  z-index: 3;
+}
 
-    .preview-card:nth-child(3) {
-      transform: translateY(20px) translateZ(-20px);
-      z-index: 1;
-      filter: brightness(0.9);
-    }
+.preview-card:nth-child(2) {
+  transform: translateY(10px) translateZ(-20px) scale(0.95);
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.preview-card:nth-child(3) {
+  transform: translateY(20px) translateZ(-40px) scale(0.9);
+  z-index: 1;
+  opacity: 0.8;
+}
+
+.preview-card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.preview-card-content h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.preview-card-content p {
+  margin: 0;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
 
     .preview-nav {
       position: absolute;
@@ -928,10 +917,15 @@ body {
     }
 
     function navigatePreview(direction) {
+    const cards = document.querySelectorAll('.preview-card');
+    cards.forEach(card => card.classList.add('transitioning'));
+    
+    setTimeout(() => {
         previewIndex = (previewIndex + direction + previewRecipes.length) % previewRecipes.length;
         updatePreviewStack();
-    }
-
+        cards.forEach(card => card.classList.remove('transitioning'));
+    }, 200);
+}
     // Menu Actions
     function handleMenuAction(action) {
         switch (action) {
