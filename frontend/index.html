@@ -1,4 +1,4 @@
-<!-- v1 -->
+<!-- latest version -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,18 +10,22 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Root Variables */
-    :root {
-      --bg-color: #f4f4f4;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #dddddd;
-      --accent-color: #4a90e2;
-      --hover-color: #357abd;
-      --margin-size: max(1rem, min(3vw, 3rem));
-      --header-height: 80px;
-      --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
+    
+
+  /* Update these root variables */
+  :root {
+    --bg-color: #f4f4f4;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --border-color: #dddddd;
+    --accent-color: #4a90e2;
+    --hover-color: #357abd;
+    --card-width: min(90vw, 1200px);
+    --card-height: min(90vh, 800px);
+    --margin-size: max(1rem, min(3vw, 3rem));
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
     
     @media (prefers-color-scheme: dark) {
       :root {
@@ -53,29 +57,32 @@
       -webkit-overflow-scrolling: touch;
     }
     
-    /* Container and Card */
-    .container {
-      width: 100%;
-      max-width: calc(100vw - 2 * var(--margin-size));
-      min-height: calc(100vh - 2 * var(--margin-size));
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      perspective: 2000px;
-    }
-    
-    .recipe-card {
-      width: 100%;
-      height: 100%;
-      min-height: 600px;
-      background: var(--card-bg);
-      border-radius: 15px;
-      box-shadow: var(--card-shadow);
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-    }
+/* Update container and card styles */
+.container {
+  width: var(--card-width);
+  height: var(--card-height);
+  margin: auto;
+  perspective: 2000px;
+}
+.recipe-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: var(--card-shadow);
+}
+
+/* Update home content layout */
+.home-content {
+  height: calc(100% - var(--header-height));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--margin-size);
+}
     
     /* Card Flip Animation */
     .container.flipped .recipe-card {
@@ -99,14 +106,28 @@
       padding: var(--margin-size);
       overflow-y: auto;
     }
-    
-    .card-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: var(--margin-size);
-    }
+
+
+/* Add proper search bar positioning */
+.search-input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-family: inherit;
+}
+
+/* Update content padding and scrolling */
+.card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
     
     /* Header Section */
     .recipe-header {
@@ -137,32 +158,27 @@
       font-size: clamp(1rem, 3vmin, 1.5rem);
       -webkit-text-stroke-width: 0.5px;
     }
-    
-    /* Preview Stack */
-    .preview-stack {
-      position: relative;
-      height: 200px;
-      margin-top: auto;
-      margin-bottom: 1rem;
-      perspective: 2000px;
-    }
-    
-    .preview-card {
-      position: absolute;
-      width: 90%;
-      height: 80%;
-      left: 5%;
-      top: 10%;
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: var(--card-shadow);
-      transition: all 0.4s ease;
-      cursor: pointer;
-      transform-origin: center center;
-      backface-visibility: hidden;
-    }
-    
+    /* Update preview stack positioning */
+.preview-stack {
+  flex: 0 0 200px;
+  position: relative;
+  margin-top: auto;
+  width: 100%;
+  perspective: 2000px;
+}
+
+.preview-card {
+  position: absolute;
+  width: 80%;
+  height: 160px;
+  left: 10%;
+  background: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
     .preview-card:nth-child(1) {
       transform: translateZ(0) scale(1);
       z-index: 3;
@@ -202,11 +218,11 @@
     
     /* Categories and Content */
     .categories-container {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 1rem;
-    }
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--margin-size);
+  margin: 1rem 0;
+}
     
     .categories-grid {
       display: grid;
@@ -286,13 +302,19 @@
       margin-top: 1rem;
     }
     
-    @media (min-width: 768px) and (orientation: landscape) {
+    /* @media (min-width: 768px) and (orientation: landscape) {
       .recipe-content {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: 1fr;
       }
     }
-    
+     */
+
+     .recipe-content {
+  height: calc(100% - var(--header-height));
+  padding: var(--margin-size);
+  overflow-y: auto;
+}
     .recipe-section {
       border: 1px solid var(--border-color);
       border-radius: 8px;
