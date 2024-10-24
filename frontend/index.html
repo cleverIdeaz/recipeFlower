@@ -147,6 +147,46 @@
       touch-action: pan-x;
     }
     
+    .preview-nav {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.preview-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 5;
+  color: var(--text-color);
+}
+
+.preview-arrow.left {
+  left: -20px;
+}
+
+.preview-arrow.right {
+  right: -20px;
+}
+
+.preview-arrow:hover {
+  background: var(--accent-color);
+  color: white;
+}
     .preview-card {
       position: absolute;
       width: 80%;
@@ -632,13 +672,16 @@
             </div>
 
             <div class="preview-stack">
-              <div class="preview-nav">
-                <button class="preview-arrow left"><i class="fas fa-chevron-left"></i></button>
-                <button class="preview-arrow right"><i class="fas fa-chevron-right"></i></button>
-              </div>
               <!-- Preview cards will be dynamically inserted here -->
+              <div class="preview-nav">
+                <button class="preview-arrow left" onclick="navigatePreview(-1)">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="preview-arrow right" onclick="navigatePreview(1)">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
-          </div>
 
           <!-- Recipe Content -->
           <div class="recipe-content" style="display: none;">
@@ -691,14 +734,18 @@
     </div>
   </div>
 
-  <!-- Search Modal -->
-  <div class="search-modal">
-    <div class="search-content">
+<!-- Search Modal -->
+<div class="search-modal">
+  <div class="search-content">
+    <div class="search-header">
       <input type="text" class="search-input" placeholder="Search recipes...">
-      <div class="search-results"></div>
+      <button class="search-close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
+    <div class="search-results"></div>
   </div>
-
+</div>
   <!-- Toast Notification -->
   <div class="toast"></div>
 
@@ -1158,11 +1205,7 @@
     }
     
     function toggleForm() {
-        container.classList.toggle('flipped');
-
-        function toggleForm() {
-    container.classList.toggle('flipped');
-}
+      container.classList.toggle('flipped');
 
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
