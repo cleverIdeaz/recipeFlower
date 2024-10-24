@@ -753,4 +753,256 @@
     <!-- Toast Notification -->
     <div class="toast"></div>
 </head>
+<script>
+  const API_URL = 'https://recipeflower.netlify.app/.netlify/functions/fetchRecipes';
+  
+  // State Management
+  let recipeData = {};
+  let currentCategory = null;
+  let currentSubcategory = null;
+  let currentRecipe = null;
+  let previewIndex = 0;
+  let previewRecipes = [];
+  let previewInterval = null;
+  
+  // DOM Elements
+  const container = document.querySelector('.container');
+  const flowerMenu = document.querySelector('.flower-menu');
+  const flowerButton = document.querySelector('.flower-button');
+  const homeContent = document.querySelector('.home-content');
+  const recipeContent = document.querySelector('.recipe-content');
+  const categoriesGrid = document.querySelector('.categories-grid');
+  const previewStack = document.querySelector('.preview-stack');
+  const searchModal = document.querySelector('.search-modal');
+  const searchInput = document.querySelector('.search-input');
+  const searchResults = document.querySelector('.search-results');
+  const form = document.querySelector('.recipe-form');
+  const toast = document.querySelector('.toast');
+  
+  // Initialize
+  async function init() {
+      try {
+          const response = await fetch(API_URL);
+          const data = await response.json();
+          if (!Array.isArray(data)) throw new Error('Expected array of recipes');
+          
+          organizeData(data);
+          setupEventListeners();
+          setupPreviewStack();
+          setupSearch();
+          handleUrlParams();
+          showCategories();
+          startPreviewRotation();
+          populateFormCategories();
+      } catch (error) {
+          console.error('Failed to initialize:', error);
+          showToast('Failed to load recipes', 'error');
+      }
+  }
+  
+  // Data Organization
+  function organizeData(data) {
+      recipeData = data.reduce((acc, recipe) => {
+          const category = recipe.Category;
+          const subcategory = recipe.Subcategory;
+          if (!acc[category]) acc[category] = {};
+          if (!acc[category][subcategory]) acc[category][subcategory] = [];
+          acc[category][subcategory].push(recipe);
+          return acc;
+      }, {});
+  }
+  
+  // Event Listeners
+  function setupEventListeners() {
+      // Flower Menu
+      flowerButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          flowerMenu.classList.toggle('active');
+      });
+  
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+          if (!flowerMenu.contains(e.target)) {
+              flowerMenu.classList.remove('active');
+          }
+          if (!searchModal.contains(e.target) && e.target === searchModal) {
+              searchModal.style.display = 'none';
+          }
+      });
+  
+      // Menu Items
+      document.querySelectorAll('.menu-item').forEach(item => {
+          item.addEventListener('click', (e) => {
+              e.preventDefault();
+              handleMenuAction(e.target.closest('.menu-item').textContent.trim());
+          });
+      });
+  
+      // Form Category Selection
+      document.getElementById('category').addEventListener('change', updateSubcategories);
+      
+      // Form
+      form.addEventListener('submit', handleFormSubmit);
+  
+      // Make recipe sections scrollable on touch devices
+      document.querySelectorAll('.recipe-section-content').forEach(section => {
+          section.addEventListener('touchstart', (e) => {
+              e.stopPropagation();
+          }, { passive: true });
+      });
+  
+      // Search close button
+      document.querySelector('.search-close')?.addEventListener('click', () => {
+          searchModal.style.display = 'none';
+      });
+  }
+  // Preview Stack Management
+  function setupPreviewStack() {
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const stack = previewStack;
+    
+        function handleTouchStart(e) {
+            startX = e.type === 'mousedown' ? e.pageX : e.touches[0].pageX;
+            isDragging = true;
+            stack.style.cursor = 'grabbing';
+        }
+    
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            currentX = e.type === 'mousemove' ? e.pageX : e.touches[0].pageX;
+            const diff = currentX - startX;
+            
+            if (Math.abs(diff) > 50) {
+                navigatePreview(diff > 0 ? -1 : 1);
+                isDragging = false;
+            }
+        }
+    
+        function handleTouchEnd() {
+            isDragging = false;
+            stack.style.cursor = '';
+        }
+    
+        stack.addEventListener('mousedown', handleTouchStart);
+        stack.addEventListener('touchstart', handleTouchStart, { passive: true });
+        stack.addEventListener('mousemove', handleTouchMove);
+        stack.addEventListener('touchmove', handleTouchMove, { passive: false });
+        stack.addEventListener('mouseup', handleTouchEnd);
+        stack.addEventListener('touchend', handleTouchEnd);
+        stack.addEventListener('mouseleave', handleTouchEnd);
+    }
+    
+    function startPreviewRotation() {
+        if (previewInterval) {
+            clearInterval(previewInterval);
+        }
+    
+        previewRecipes = [];
+        Object.values(recipeData).forEach(categories => {
+            Object.values(categories).forEach(recipes => {
+                previewRecipes.push(...recipes);
+            });
+        });
+    
+        shuffleArray(previewRecipes);
+        updatePreviewStack();
+    
+        previewInterval = setInterval(() => {
+            if (!document.hidden && homeContent.style.display !== 'none') {
+                navigatePreview(1);
+            }
+        }, 10000);
+    }
+    
+    function updatePreviewStack() {
+        if (!previewRecipes.length) return;
+    
+        const nav = previewStack.querySelector('.preview-nav');
+        const cards = [];
+        
+        for (let i = -1; i <= 1; i++) {
+            const idx = (previewIndex + i + previewRecipes.length) % previewRecipes.length;
+            const recipe = previewRecipes[idx];
+            const position = i === 0 ? 'active' : i === -1 ? 'prev' : 'next';
+            
+            cards.push(`
+                <div class="preview-card ${position}"
+                     onclick="showRecipeFromPreview('${recipe['Recipe Name']}', '${recipe.Category}', '${recipe.Subcategory}')">
+                    <div class="preview-card-content">
+                        <h3>${recipe['Recipe Name']}</h3>
+                        <p>${recipe.Category} | ${recipe.Subcategory}</p>
+                    </div>
+                </div>
+            `);
+        }
+    
+        previewStack.innerHTML = cards.join('') + nav.outerHTML;
+    }
+    
+    function navigatePreview(direction) {
+        const cards = document.querySelectorAll('.preview-card');
+        cards.forEach(card => {
+            card.style.animation = direction > 0 ? 'cardSlideLeft 0.4s' : 'cardSlideRight 0.4s';
+        });
+    
+        setTimeout(() => {
+            previewIndex = (previewIndex + direction + previewRecipes.length) % previewRecipes.length;
+            updatePreviewStack();
+        }, 200);
+    }
+
+    // Search Functionality
+    function setupSearch() {
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+        
+        searchModal.addEventListener('click', (e) => {
+            if (e.target === searchModal) {
+                searchModal.style.display = 'none';
+            }
+        });
+    }
+    
+    function showSearch() {
+        searchModal.style.display = 'flex';
+        searchInput.value = '';
+        searchInput.focus();
+        searchResults.innerHTML = '';
+    }
+    
+    function handleSearch(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        if (!searchTerm) {
+            searchResults.innerHTML = '';
+            return;
+        }
+    
+        const results = [];
+        Object.entries(recipeData).forEach(([category, subcategories]) => {
+            Object.entries(subcategories).forEach(([subcategory, recipes]) => {
+                recipes.forEach(recipe => {
+                    if (
+                        recipe['Recipe Name'].toLowerCase().includes(searchTerm) ||
+                        recipe.Ingredients.toLowerCase().includes(searchTerm) ||
+                        recipe.Instructions.toLowerCase().includes(searchTerm)
+                    ) {
+                        results.push({...recipe, category, subcategory});
+                    }
+                });
+            });
+        });
+    
+        searchResults.innerHTML = results.length ? results
+            .map(recipe => `
+                <div class="search-item" onclick="showRecipeFromSearch('${recipe['Recipe Name']}', '${recipe.category}', '${recipe.subcategory}')">
+                    <strong>${recipe['Recipe Name']}</strong>
+                    <div><small>${recipe.category} | ${recipe.subcategory}</small></div>
+                </div>
+            `).join('') : '<div class="no-results">No recipes found</div>';
+    }
+    
+</script>
 
