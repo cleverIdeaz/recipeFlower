@@ -712,7 +712,8 @@
     let currentRecipe = null;
     let previewIndex = 0;
     let previewRecipes = [];
-
+    let previewInterval = null;
+    
     // DOM Elements
     const container = document.querySelector('.container');
     const flowerMenu = document.querySelector('.flower-menu');
@@ -726,7 +727,7 @@
     const searchResults = document.querySelector('.search-results');
     const form = document.querySelector('.recipe-form');
     const toast = document.querySelector('.toast');
-
+    
     // Initialize
     async function init() {
         try {
@@ -734,10 +735,10 @@
             const data = await response.json();
             if (!Array.isArray(data)) throw new Error('Expected array of recipes');
             
-            console.log('Fetched data:', data); // Debug log
-            
             organizeData(data);
             setupEventListeners();
+            setupPreviewStack();
+            setupSearch();
             handleUrlParams();
             showCategories();
             startPreviewRotation();
@@ -747,7 +748,7 @@
             showToast('Failed to load recipes', 'error');
         }
     }
-
+    
     // Data Organization
     function organizeData(data) {
         recipeData = data.reduce((acc, recipe) => {
@@ -758,10 +759,8 @@
             acc[category][subcategory].push(recipe);
             return acc;
         }, {});
-        
-        console.log('Organized data:', recipeData); // Debug log
     }
-
+    
     // Event Listeners
     function setupEventListeners() {
         // Flower Menu
@@ -769,17 +768,14 @@
             e.stopPropagation();
             flowerMenu.classList.toggle('active');
         });
-
+    
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!flowerMenu.contains(e.target)) {
                 flowerMenu.classList.remove('active');
             }
-            if (!searchModal.contains(e.target) && !e.target.closest('.menu-item')) {
-                searchModal.style.display = 'none';
-            }
         });
-
+    
         // Menu Items
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -787,26 +783,175 @@
                 handleMenuAction(e.target.closest('.menu-item').textContent.trim());
             });
         });
-
-        // Preview Navigation
-        document.querySelector('.preview-arrow.left').addEventListener('click', () => {
-            navigatePreview(-1);
-        });
-        document.querySelector('.preview-arrow.right').addEventListener('click', () => {
-            navigatePreview(1);
-        });
-
+    
         // Form Category Selection
         document.getElementById('category').addEventListener('change', updateSubcategories);
         
         // Form
         form.addEventListener('submit', handleFormSubmit);
-        
-        // Search
-        searchModal.querySelector('.search-input').addEventListener('input', debounce(handleSearch, 300));
+    
+        // Make recipe sections scrollable on touch devices
+        document.querySelectorAll('.recipe-section-content').forEach(section => {
+            section.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            }, { passive: true });
+        });
+    
+        // Search close button
+        document.querySelector('.search-close')?.addEventListener('click', () => {
+            searchModal.style.display = 'none';
+        });
     }
-
-    // Navigation
+    
+    // Preview Stack Management
+    function setupPreviewStack() {
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const stack = previewStack;
+    
+        function handleTouchStart(e) {
+            startX = e.type === 'mousedown' ? e.pageX : e.touches[0].pageX;
+            isDragging = true;
+            stack.style.cursor = 'grabbing';
+        }
+    
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            currentX = e.type === 'mousemove' ? e.pageX : e.touches[0].pageX;
+            const diff = currentX - startX;
+            
+            if (Math.abs(diff) > 50) {
+                navigatePreview(diff > 0 ? -1 : 1);
+                isDragging = false;
+            }
+        }
+    
+        function handleTouchEnd() {
+            isDragging = false;
+            stack.style.cursor = '';
+        }
+    
+        stack.addEventListener('mousedown', handleTouchStart);
+        stack.addEventListener('touchstart', handleTouchStart, { passive: true });
+        stack.addEventListener('mousemove', handleTouchMove);
+        stack.addEventListener('touchmove', handleTouchMove, { passive: false });
+        stack.addEventListener('mouseup', handleTouchEnd);
+        stack.addEventListener('touchend', handleTouchEnd);
+        stack.addEventListener('mouseleave', handleTouchEnd);
+    }
+    
+    function startPreviewRotation() {
+        if (previewInterval) {
+            clearInterval(previewInterval);
+        }
+    
+        previewRecipes = [];
+        Object.values(recipeData).forEach(categories => {
+            Object.values(categories).forEach(recipes => {
+                previewRecipes.push(...recipes);
+            });
+        });
+    
+        shuffleArray(previewRecipes);
+        updatePreviewStack();
+    
+        previewInterval = setInterval(() => {
+            if (!document.hidden && homeContent.style.display !== 'none') {
+                navigatePreview(1);
+            }
+        }, 10000);
+    }
+    
+    function updatePreviewStack() {
+        if (!previewRecipes.length) return;
+    
+        const stack = document.querySelector('.preview-stack');
+        const cards = [];
+        
+        for (let i = -1; i <= 1; i++) {
+            const idx = (previewIndex + i + previewRecipes.length) % previewRecipes.length;
+            const recipe = previewRecipes[idx];
+            const position = i === 0 ? 'active' : i === -1 ? 'prev' : 'next';
+            
+            cards.push(`
+                <div class="preview-card ${position}"
+                     onclick="showRecipeFromPreview('${recipe['Recipe Name']}', '${recipe.Category}', '${recipe.Subcategory}')">
+                    <div class="preview-card-content">
+                        <h3>${recipe['Recipe Name']}</h3>
+                        <p>${recipe.Category} | ${recipe.Subcategory}</p>
+                    </div>
+                </div>
+            `);
+        }
+    
+        stack.innerHTML = cards.join('');
+    }
+    
+    function navigatePreview(direction) {
+        const cards = document.querySelectorAll('.preview-card');
+        cards.forEach(card => {
+            card.style.animation = direction > 0 ? 'cardSlideLeft 0.4s' : 'cardSlideRight 0.4s';
+        });
+    
+        setTimeout(() => {
+            previewIndex = (previewIndex + direction + previewRecipes.length) % previewRecipes.length;
+            updatePreviewStack();
+        }, 200);
+    }
+    
+    // Search Functionality
+    function setupSearch() {
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+        
+        searchModal.addEventListener('click', (e) => {
+            if (e.target === searchModal) {
+                searchModal.style.display = 'none';
+            }
+        });
+    }
+    
+    function showSearch() {
+        searchModal.style.display = 'flex';
+        searchInput.value = '';
+        searchInput.focus();
+        searchResults.innerHTML = '';
+    }
+    
+    function handleSearch(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        if (!searchTerm) {
+            searchResults.innerHTML = '';
+            return;
+        }
+    
+        const results = [];
+        Object.entries(recipeData).forEach(([category, subcategories]) => {
+            Object.entries(subcategories).forEach(([subcategory, recipes]) => {
+                recipes.forEach(recipe => {
+                    if (
+                        recipe['Recipe Name'].toLowerCase().includes(searchTerm) ||
+                        recipe.Ingredients.toLowerCase().includes(searchTerm) ||
+                        recipe.Instructions.toLowerCase().includes(searchTerm)
+                    ) {
+                        results.push({...recipe, category, subcategory});
+                    }
+                });
+            });
+        });
+    
+        searchResults.innerHTML = results.length ? results
+            .map(recipe => `
+                <div class="search-item" onclick="showRecipeFromSearch('${recipe['Recipe Name']}', '${recipe.category}', '${recipe.subcategory}')">
+                    <strong>${recipe['Recipe Name']}</strong>
+                    <div><small>${recipe.category} | ${recipe.subcategory}</small></div>
+                </div>
+            `).join('') : '<div class="no-results">No recipes found</div>';
+    }
+    
+    // Navigation Functions
     function showCategories() {
         currentCategory = null;
         currentSubcategory = null;
@@ -816,6 +961,7 @@
         
         homeContent.style.display = 'flex';
         recipeContent.style.display = 'none';
+        previewStack.style.display = 'block';
         
         categoriesGrid.innerHTML = Object.keys(recipeData)
             .map(category => `
@@ -827,7 +973,7 @@
         startPreviewRotation();
         updateURL();
     }
-
+    
     function showSubcategories(category) {
         currentCategory = category;
         currentSubcategory = null;
@@ -847,7 +993,7 @@
         
         updateURL();
     }
-
+    
     function showRecipes(subcategory) {
         currentSubcategory = subcategory;
         
@@ -865,7 +1011,7 @@
         
         updateURL();
     }
-
+    
     function showRecipe(recipeName) {
         currentRecipe = recipeData[currentCategory][currentSubcategory]
             .find(r => r['Recipe Name'] === recipeName);
@@ -912,137 +1058,7 @@
         
         updateURL();
     }
-
-    // Preview Stack Management
-    function startPreviewRotation() {
-        previewRecipes = [];
-        Object.values(recipeData).forEach(categories => {
-            Object.values(categories).forEach(recipes => {
-                previewRecipes.push(...recipes);
-            });
-        });
-
-        shuffleArray(previewRecipes);
-        updatePreviewStack();
-
-        // Auto rotate every 10 seconds if not hidden
-        setInterval(() => {
-            if (!document.hidden && homeContent.style.display !== 'none') {
-                navigatePreview(1);
-            }
-        }, 10000);
-    }
-
-    function updatePreviewStack() {
-        const cards = [];
-        for (let i = 0; i < 3; i++) {
-            const idx = (previewIndex + i) % previewRecipes.length;
-            const recipe = previewRecipes[idx];
-            cards.push(`
-                <div class="preview-card" onclick="showRecipeFromPreview('${recipe['Recipe Name']}', '${recipe.Category}', '${recipe.Subcategory}')">
-                    <div class="preview-card-content">
-                        <h3>${recipe['Recipe Name']}</h3>
-                        <p>${recipe.Category} | ${recipe.Subcategory}</p>
-                    </div>
-                </div>
-            `);
-        }
-        
-        const navHtml = previewStack.querySelector('.preview-nav').outerHTML;
-        previewStack.innerHTML = cards.join('') + navHtml;
-    }
-
-    function navigatePreview(direction) {
-    const cards = document.querySelectorAll('.preview-card');
-    cards.forEach(card => card.classList.add('transitioning'));
     
-    setTimeout(() => {
-        previewIndex = (previewIndex + direction + previewRecipes.length) % previewRecipes.length;
-        updatePreviewStack();
-        cards.forEach(card => card.classList.remove('transitioning'));
-    }, 200);
-}
-    // Menu Actions
-    function handleMenuAction(action) {
-        switch (action) {
-            case 'Home':
-                showCategories();
-                break;
-            case 'Search':
-                showSearch();
-                break;
-            case 'Add Recipe':
-                toggleForm();
-                break;
-            case 'Full Screen':
-                toggleFullScreen();
-                break;
-            case 'Print':
-                window.print();
-                break;
-            case 'Flag Recipe':
-                handleFlagRecipe();
-                break;
-            case 'Share':
-                handleShare();
-                break;
-            case 'Back':
-                handleBack();
-                break;
-        }
-        flowerMenu.classList.remove('active');
-    }
-
-    function handleBack() {
-        if (currentRecipe) {
-            showRecipes(currentSubcategory);
-        } else if (currentSubcategory) {
-            showSubcategories(currentCategory);
-        } else if (currentCategory) {
-            showCategories();
-        }
-    }
-
-    // Search Functionality
-    function showSearch() {
-        searchModal.style.display = 'flex';
-        const searchInput = searchModal.querySelector('.search-input');
-        searchInput.value = '';
-        searchInput.focus();
-        searchResults.innerHTML = '';
-    }
-
-    function handleSearch(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        if (!searchTerm) {
-            searchResults.innerHTML = '';
-            return;
-        }
-
-        const results = [];
-        Object.entries(recipeData).forEach(([category, subcategories]) => {
-            Object.entries(subcategories).forEach(([subcategory, recipes]) => {
-                recipes.forEach(recipe => {
-                    if (
-                        recipe['Recipe Name'].toLowerCase().includes(searchTerm) ||
-                        recipe.Ingredients.toLowerCase().includes(searchTerm) ||
-                        recipe.Instructions.toLowerCase().includes(searchTerm)
-                    ) {
-                        results.push({...recipe, category, subcategory});
-                    }
-                });
-            });
-        });
-
-        searchResults.innerHTML = results.length ? results
-            .map(recipe => `
-                <div class="category-item" onclick="showRecipeFromSearch('${recipe['Recipe Name']}', '${recipe.category}', '${recipe.subcategory}')">
-                    <strong>${recipe['Recipe Name']}</strong>
-                    <div><small>${recipe.category} | ${recipe.subcategory}</small></div>
-                </div>
-            `).join('') : '<div class="no-results">No recipes found</div>';
-    }
-
     // Form Handling
     function populateFormCategories() {
         const categorySelect = document.getElementById('category');
@@ -1053,7 +1069,7 @@
             ).join('')}
         `;
     }
-
+    
     function updateSubcategories() {
         const category = document.getElementById('category').value;
         const subcategorySelect = document.getElementById('subcategory');
@@ -1062,7 +1078,7 @@
             subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
             return;
         }
-
+    
         subcategorySelect.innerHTML = `
             <option value="">Select Subcategory</option>
             ${Object.keys(recipeData[category]).map(subcategory => 
@@ -1070,7 +1086,7 @@
             ).join('')}
         `;
     }
-
+    
     async function handleFormSubmit(e) {
         e.preventDefault();
         
@@ -1092,31 +1108,29 @@
             
             if (!response.ok) throw new Error('Failed to submit recipe');
             
-            const result = await response.json();
             showToast('Recipe submitted successfully!');
             
             if (formData.userEmail) {
                 const recipeUrl = `${window.location.origin}?category=${encodeURIComponent(formData.Category)}&subcategory=${encodeURIComponent(formData.Subcategory)}&recipe=${encodeURIComponent(formData['Recipe Name'])}`;
-                // Here you would typically call your email service
                 console.log('Recipe URL:', recipeUrl);
             }
             
             form.reset();
             toggleForm();
-            init(); // Refresh data
+            init();
             
         } catch (error) {
             console.error('Form submission error:', error);
             showToast('Failed to submit recipe', 'error');
         }
     }
-
+    
     // Utility Functions
     function updateHeader(title, subtitle = '') {
         document.querySelector('h1').textContent = title;
         document.querySelector('h2').textContent = subtitle;
     }
-
+    
     function updateURL() {
         const params = new URLSearchParams();
         if (currentCategory) params.set('category', currentCategory);
@@ -1124,13 +1138,13 @@
         if (currentRecipe) params.set('recipe', currentRecipe['Recipe Name']);
         window.history.pushState({}, '', `?${params.toString()}`);
     }
-
+    
     function handleUrlParams() {
         const params = new URLSearchParams(window.location.search);
         const category = params.get('category');
         const subcategory = params.get('subcategory');
         const recipe = params.get('recipe');
-
+    
         if (category && subcategory && recipe) {
             currentCategory = category;
             currentSubcategory = subcategory;
@@ -1142,111 +1156,156 @@
             showSubcategories(category);
         }
     }
-
+    
     function toggleForm() {
         container.classList.toggle('flipped');
-    }
 
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
+        function toggleForm() {
+    container.classList.toggle('flipped');
+}
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
         }
     }
+}
 
-    function showToast(message, type = 'success') {
-        toast.textContent = message;
-        toast.className = `toast ${type}`;
-        toast.style.display = 'block';
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
+function showToast(message, type = 'success') {
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
+}
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            func(...args);
         };
-    }
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
-    // Share & Flag Functionality
-    function handleShare() {
-        const url = window.location.href;
-        if (navigator.share) {
-            try {
-                navigator.share({
-                    title: document.title,
-                    url: url
-                });
-            } catch (err) {
-                console.error('Share failed:', err);
-                fallbackShare(url);
-            }
-        } else {
+// Share & Flag Functionality
+function handleShare() {
+    const url = window.location.href;
+    if (navigator.share) {
+        try {
+            navigator.share({
+                title: document.title,
+                url: url
+            });
+        } catch (err) {
+            console.error('Share failed:', err);
             fallbackShare(url);
         }
+    } else {
+        fallbackShare(url);
     }
+}
 
-    function fallbackShare(url) {
-        navigator.clipboard.writeText(url)
-            .then(() => showToast('Link copied to clipboard!'))
-            .catch(() => showToast('Failed to copy link', 'error'));
-    }
+function fallbackShare(url) {
+    navigator.clipboard.writeText(url)
+        .then(() => showToast('Link copied to clipboard!'))
+        .catch(() => showToast('Failed to copy link', 'error'));
+}
 
-    function handleFlagRecipe() {
-        if (!currentRecipe) return;
-        
-        const reason = prompt('Please enter the reason for flagging this recipe:');
-        if (reason) {
-            showToast('Recipe has been flagged for review');
-            console.log('Recipe flagged:', currentRecipe['Recipe Name'], 'Reason:', reason);
-        }
-    }
-
-    // Recipe Navigation Helpers
-    function showRecipeFromSearch(recipeName, category, subcategory) {
-        searchModal.style.display = 'none';
-        currentCategory = category;
-        currentSubcategory = subcategory;
-        showRecipe(recipeName);
-    }
-
-    function showRecipeFromPreview(recipeName, category, subcategory) {
-        currentCategory = category;
-        currentSubcategory = subcategory;
-        showRecipe(recipeName);
-    }
-
-    // Handle Window Events
-    window.addEventListener('popstate', handleUrlParams);
+function handleFlagRecipe() {
+    if (!currentRecipe) return;
     
-    // Initialize the application
-    init();
+    const reason = prompt('Please enter the reason for flagging this recipe:');
+    if (reason) {
+        showToast('Recipe has been flagged for review');
+        console.log('Recipe flagged:', currentRecipe['Recipe Name'], 'Reason:', reason);
+    }
+}
 
-    
-  </script>
+// Recipe Navigation Helpers
+function showRecipeFromSearch(recipeName, category, subcategory) {
+    searchModal.style.display = 'none';
+    currentCategory = category;
+    currentSubcategory = subcategory;
+    showRecipe(recipeName);
+}
+
+function showRecipeFromPreview(recipeName, category, subcategory) {
+    if (previewInterval) {
+        clearInterval(previewInterval);
+    }
+    currentCategory = category;
+    currentSubcategory = subcategory;
+    showRecipe(recipeName);
+}
+
+// Menu Actions
+function handleMenuAction(action) {
+    switch (action) {
+        case 'Home':
+            showCategories();
+            break;
+        case 'Search':
+            showSearch();
+            break;
+        case 'Add Recipe':
+            toggleForm();
+            break;
+        case 'Full Screen':
+            toggleFullScreen();
+            break;
+        case 'Print':
+            window.print();
+            break;
+        case 'Flag Recipe':
+            handleFlagRecipe();
+            break;
+        case 'Share':
+            handleShare();
+            break;
+        case 'Back':
+            handleBack();
+            break;
+    }
+    flowerMenu.classList.remove('active');
+}
+
+function handleBack() {
+    if (currentRecipe) {
+        showRecipes(currentSubcategory);
+    } else if (currentSubcategory) {
+        showSubcategories(currentCategory);
+    } else if (currentCategory) {
+        showCategories();
+    }
+}
+
+// Handle Window Events
+window.addEventListener('popstate', handleUrlParams);
+
+// Initialize the application
+init();
+</script>
 </body>
 </html>
