@@ -10,264 +10,314 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Replace the current CSS root variables section with: */
-:root {
-  --bg-color: #f4f4f4;
-  --card-bg: #ffffff;
-  --text-color: #333333;
-  --border-color: #dddddd;
-  --accent-color: #4a90e2;
-  --hover-color: #357abd;
-  --margin-size: max(1rem, min(3vw, 3rem));
-  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-/* Update body styles */
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  min-height: 100vh;
-  margin: 0;
-  padding: var(--margin-size);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Update container and recipe-card styles */
-.container {
-  width: 100%;
-  max-width: calc(100vw - 2 * var(--margin-size));
-  min-height: calc(100vh - 2 * var(--margin-size));
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.recipe-card {
-  width: 100%;
-  height: 100%;
-  min-height: 600px;
-  background: var(--card-bg);
-  border-radius: 15px;
-  box-shadow: var(--card-shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Update preview stack styles */
-.preview-stack {
-  position: relative;
-  height: 200px;
-  margin-top: auto;
-  margin-bottom: 1rem;
-  perspective: 2000px;
-}
-
-.preview-card {
-  position: absolute;
-  width: 90%;
-  height: 80%;
-  left: 5%;
-  top: 10%;
-  background: var(--card-bg);
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: var(--card-shadow);
-  transition: all 0.4s ease;
-  cursor: pointer;
-  transform-origin: center center;
-  backface-visibility: hidden;
-}
-
-.preview-card:nth-child(1) {
-  transform: translateZ(0) scale(1);
-  z-index: 3;
-}
-
-.preview-card:nth-child(2) {
-  transform: translateY(10px) translateZ(-20px) scale(0.95);
-  z-index: 2;
-  opacity: 0.9;
-}
-
-.preview-card:nth-child(3) {
-  transform: translateY(20px) translateZ(-40px) scale(0.9);
-  z-index: 1;
-  opacity: 0.8;
-}
-
-.preview-card-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.preview-card-content h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-}
-
-.preview-card-content p {
-  margin: 0;
-  font-size: 0.875rem;
-  opacity: 0.8;
-}
-
-/* Update categories section */
-.categories-container {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 1rem;
-}
-
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  padding-bottom: 1rem;
-}
-
-/* Update recipe content section */
-.recipe-content {
-  height: calc(100% - var(--header-height));
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 1rem;
-}
-
-.recipe-section {
-  height: auto;
-  min-height: 200px;
-}
-
-.recipe-section-content {
-  padding: 1rem;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Add animation for preview cards */
-@keyframes cardTransition {
-  0% {
-    transform: translateX(0) translateZ(0) scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: translateX(-100%) translateZ(-50px) scale(0.9);
-    opacity: 0;
-  }
-  51% {
-    transform: translateX(100%) translateZ(-50px) scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0) translateZ(0) scale(1);
-    opacity: 1;
-  }
-}
-
-.preview-card.transitioning {
-  animation: cardTransition 0.4s ease-in-out;
-}
-.preview-card {
-  position: absolute;
-  width: 90%;
-  height: 80%;
-  left: 5%;
-  top: 10%;
-  background: var(--card-bg);
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: var(--card-shadow);
-  transition: all 0.4s ease;
-  cursor: pointer;
-  transform-origin: center center;
-  backface-visibility: hidden;
-}
-
-.preview-card:nth-child(1) {
-  transform: translateZ(0) scale(1);
-  z-index: 3;
-}
-
-.preview-card:nth-child(2) {
-  transform: translateY(10px) translateZ(-20px) scale(0.95);
-  z-index: 2;
-  opacity: 0.9;
-}
-
-.preview-card:nth-child(3) {
-  transform: translateY(20px) translateZ(-40px) scale(0.9);
-  z-index: 1;
-  opacity: 0.8;
-}
-
-.preview-card-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.preview-card-content h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-}
-
-.preview-card-content p {
-  margin: 0;
-  font-size: 0.875rem;
-  opacity: 0.8;
-}
-
-    .preview-nav {
+    /* Root Variables */
+    :root {
+      --bg-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-color: #dddddd;
+      --accent-color: #4a90e2;
+      --hover-color: #357abd;
+      --margin-size: max(1rem, min(3vw, 3rem));
+      --header-height: 80px;
+      --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #ffffff;
+        --border-color: #333333;
+        --accent-color: #64b5f6;
+        --hover-color: #42a5f5;
+      }
+    }
+    
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      margin: 0;
+      padding: var(--margin-size);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Container and Card */
+    .container {
+      width: 100%;
+      max-width: calc(100vw - 2 * var(--margin-size));
+      min-height: calc(100vh - 2 * var(--margin-size));
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 2000px;
+    }
+    
+    .recipe-card {
+      width: 100%;
+      height: 100%;
+      min-height: 600px;
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+    
+    /* Card Flip Animation */
+    .container.flipped .recipe-card {
+      transform: rotateY(180deg);
+    }
+    
+    .card-front, .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 4;
-    }
-
-    .preview-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 40px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 50%;
+      backface-visibility: hidden;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .card-back {
+      transform: rotateY(180deg);
+      background-color: var(--card-bg);
+      border-radius: 15px;
+      padding: var(--margin-size);
+      overflow-y: auto;
+    }
+    
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: var(--margin-size);
+    }
+    
+    /* Header Section */
+    .recipe-header {
+      flex: 0 0 var(--header-height);
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+      z-index: 10;
+      background-color: var(--card-bg);
+    }
+    
+    h1, h2 {
+      text-align: center;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+    }
+    
+    h1 {
+      font-size: clamp(1.5rem, 4vmin, 2.5rem);
+      margin-bottom: 0.25rem;
+    }
+    
+    h2 {
+      font-size: clamp(1rem, 3vmin, 1.5rem);
+      -webkit-text-stroke-width: 0.5px;
+    }
+    
+    /* Preview Stack */
+    .preview-stack {
+      position: relative;
+      height: 200px;
+      margin-top: auto;
+      margin-bottom: 1rem;
+      perspective: 2000px;
+    }
+    
+    .preview-card {
+      position: absolute;
+      width: 90%;
+      height: 80%;
+      left: 5%;
+      top: 10%;
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.4s ease;
       cursor: pointer;
-      pointer-events: auto;
-      transition: transform 0.2s;
-      z-index: 5;
+      transform-origin: center center;
+      backface-visibility: hidden;
     }
-
-    .preview-arrow:hover {
-      transform: translateY(-50%) scale(1.1);
+    
+    .preview-card:nth-child(1) {
+      transform: translateZ(0) scale(1);
+      z-index: 3;
     }
-
-    .preview-arrow.left {
-      left: -20px;
+    
+    .preview-card:nth-child(2) {
+      transform: translateY(10px) translateZ(-20px) scale(0.95);
+      z-index: 2;
+      opacity: 0.9;
     }
-
-    .preview-arrow.right {
-      right: -20px;
+    
+    .preview-card:nth-child(3) {
+      transform: translateY(20px) translateZ(-40px) scale(0.9);
+      z-index: 1;
+      opacity: 0.8;
     }
-
+    
+    .preview-card-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .preview-card-content h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.25rem;
+    }
+    
+    .preview-card-content p {
+      margin: 0;
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+    
+    /* Categories and Content */
+    .categories-container {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 1rem;
+    }
+    
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      padding-bottom: 1rem;
+    }
+    
+    .category-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+    
+    .category-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Recipe Form Styles */
+    .recipe-form {
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-input {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-family: inherit;
+    }
+    
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .form-button {
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--accent-color);
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    
+    .form-button:hover {
+      background-color: var(--hover-color);
+    }
+    
+    /* Recipe Content */
+    .recipe-content {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 1rem;
+      height: 100%;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    
+    @media (min-width: 768px) and (orientation: landscape) {
+      .recipe-content {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr;
+      }
+    }
+    
+    .recipe-section {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .recipe-section h3 {
+      position: sticky;
+      top: 0;
+      background-color: var(--card-bg);
+      padding: 1rem;
+      margin: 0;
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1;
+    }
+    
+    .recipe-section-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    
     /* Flower Menu */
     .flower-menu {
       position: absolute;
@@ -275,7 +325,7 @@ body {
       right: var(--margin-size);
       z-index: 100;
     }
-
+    
     .flower-button {
       background: transparent;
       border: none;
@@ -289,11 +339,11 @@ body {
       color: var(--text-color);
       font-size: 1.5rem;
     }
-
+    
     .flower-button:hover {
       transform: rotate(45deg);
     }
-
+    
     .flower-menu-items {
       position: absolute;
       top: 100%;
@@ -305,11 +355,11 @@ body {
       display: none;
       min-width: 200px;
     }
-
+    
     .flower-menu.active .flower-menu-items {
       display: block;
     }
-
+    
     .menu-item {
       display: flex;
       align-items: center;
@@ -320,157 +370,17 @@ body {
       transition: background-color 0.2s;
       cursor: pointer;
     }
-
+    
     .menu-item i {
       margin-right: 0.75rem;
       width: 20px;
       text-align: center;
     }
-
+    
     .menu-item:hover {
       background-color: var(--border-color);
     }
-
-    /* Recipe Content */
-    .recipe-content {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 1rem;
-      height: 100%;
-      overflow: hidden;
-      margin-top: 1rem;
-    }
-
-    @media (min-width: 768px) and (orientation: landscape) {
-      .recipe-content {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr;
-      }
-    }
-/* 
-    .recipe-section {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    } */
-
-    .recipe-section h3 {
-      position: sticky;
-      top: 0;
-      background-color: var(--card-bg);
-      padding: 1rem;
-      margin: 0;
-      border-bottom: 1px solid var(--border-color);
-      z-index: 1;
-    }
-
-    .recipe-section {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Change this */
-}
-
-.recipe-section-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  -webkit-overflow-scrolling: touch; /* Add this for mobile */
-}
-
-
-
-    /* Search Modal */
-    .search-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .search-content {
-      background-color: var(--card-bg);
-      border-radius: 15px;
-      padding: var(--margin-size);
-      width: 90%;
-      max-width: 600px;
-      max-height: 80vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      font-family: inherit;
-      margin-bottom: 1rem;
-    }
-
-    .search-results {
-  overflow-y: auto;
-  max-height: 60vh;
-  -webkit-overflow-scrolling: touch; /* Add this for mobile */
-}
-
-    /* Form Styles */
-    .recipe-form {
-      height: 100%;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-input {
-      padding: 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      font-family: inherit;
-    }
-
-    .form-textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .form-button {
-      padding: 0.75rem;
-      border: none;
-      border-radius: 8px;
-      background-color: var(--accent-color);
-      color: white;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 600;
-      transition: background-color 0.2s;
-    }
-
-    .form-button:hover {
-      background-color: var(--hover-color);
-    }
-
+    
     /* Toast Notification */
     .toast {
       position: fixed;
@@ -484,80 +394,90 @@ body {
       animation: fadeIn 0.3s ease;
       z-index: 1000;
     }
-
+    
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    /* Checkbox Styles */
-    .checkbox-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .checkbox-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-      margin-top: 0.25rem;
-    }
-
+    
     /* Scrollbar Styles */
-    ::-webkit-scrollbar {
-      width: 8px;
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) transparent;
     }
-
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
     ::-webkit-scrollbar-track {
       background: transparent;
     }
-
+    
     ::-webkit-scrollbar-thumb {
       background: var(--border-color);
-      border-radius: 4px;
+      border-radius: 3px;
     }
-
+    
     ::-webkit-scrollbar-thumb:hover {
       background: var(--accent-color);
     }
-
+    
     /* Print Styles */
     @media print {
       body {
         padding: 0;
         background: white;
       }
-
+    
       .container {
         width: 100%;
         height: auto;
       }
-
+    
       .recipe-card {
-        background-color: var(--card-bg);
-
         box-shadow: none;
       }
-
+    
       .flower-menu,
       .preview-stack {
         display: none;
       }
-
+    
       .recipe-content {
         display: block;
       }
-
+    
       .recipe-section {
         page-break-inside: avoid;
         border: none;
       }
     }
-  </style>
+    
+    /* Add animation for preview cards */
+    @keyframes cardTransition {
+      0% {
+        transform: translateX(0) translateZ(0) scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(-100%) translateZ(-50px) scale(0.9);
+        opacity: 0;
+      }
+      51% {
+        transform: translateX(100%) translateZ(-50px) scale(0.9);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0) translateZ(0) scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .preview-card.transitioning {
+      animation: cardTransition 0.4s ease-in-out;
+    }
+    </style>
 </head>
 <body>
   <div class="container">
@@ -1209,6 +1129,8 @@ body {
     
     // Initialize the application
     init();
+
+    
   </script>
 </body>
 </html>
